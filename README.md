@@ -1,4 +1,6 @@
-# DB Tools · 1.2.0 Beta 1
+# DB Tools · 1.2.0 Beta 2
+
+Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
 
 Einfacher Zuschnittplaner für macOS mit Schwarz-Weiss-Oberfläche, Vollbildansicht und frei einstellbarer Zugabe pro Seite. Hell-, Dunkel- und Systemmodus bleiben verfügbar. Kein Feedback-Hub.
 

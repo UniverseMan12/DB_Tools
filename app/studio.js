@@ -107,6 +107,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const planView=el('plan-view'), plan=el('plan'), planHome=plan.parentNode, planNext=plan.nextSibling;
   let wasFullscreen=false, enteringPlan=false;
   function resizePlan(value){el('zoom').value=value;el('zoom').dispatchEvent(new Event('input'));el('fullscreen-zoom').value=el('zoom').value;el('fullscreen-zoom-value').textContent=el('zoom').value+' %';}
+  // Chromium delivers trackpad pinch gestures as ctrl+wheel. Keep normal
+  // scrolling available for panning; Cmd/Ctrl+wheel zooms only this drawing.
+  let gestureZoom=Number(el('zoom').value), gestureFrame=0, gestureAnchor;
+  const syncZoomControls=()=>{el('fullscreen-zoom').value=el('zoom').value;el('fullscreen-zoom-value').textContent=el('zoom').value+' %';};
+  el('zoom').addEventListener('input',()=>{gestureZoom=Number(el('zoom').value);syncZoomControls();});
+  plan.addEventListener('wheel',event=>{
+    if(!(event.ctrlKey||event.metaKey)||!current||!plan.querySelector('svg'))return;
+    event.preventDefault();
+    const unit=event.deltaMode===1?16:event.deltaMode===2?plan.clientHeight:1;
+    const delta=Math.max(-150,Math.min(150,event.deltaY*unit));
+    gestureZoom=Math.max(25,Math.min(250,gestureZoom*Math.exp(-delta*.008)));
+    gestureAnchor={x:event.clientX,y:event.clientY};
+    if(gestureFrame)return;
+    gestureFrame=requestAnimationFrame(()=>{
+      gestureFrame=0;
+      const svg=plan.querySelector('svg');if(!svg)return;
+      const before=svg.getBoundingClientRect(),anchor=gestureAnchor;
+      const x=(anchor.x-before.left)/before.width,y=(anchor.y-before.top)/before.height;
+      const target=gestureZoom;
+      resizePlan(Math.round(target));gestureZoom=target;
+      const after=plan.querySelector('svg').getBoundingClientRect();
+      plan.scrollLeft+=after.left+x*after.width-anchor.x;
+      plan.scrollTop+=after.top+y*after.height-anchor.y;
+    });
+  },{passive:false});
   function fitPlan(){resizePlan(100);const svg=plan.querySelector('svg');if(svg){const scale=Math.min((plan.clientWidth-32)/Number(svg.getAttribute('width')),(plan.clientHeight-32)/Number(svg.getAttribute('height')));resizePlan(Math.max(25,Math.min(250,Math.floor(scale*100))));}}
   el('plan-fullscreen').onclick=async()=>{if(!plan.querySelector('svg')||enteringPlan)return;enteringPlan=true;try{wasFullscreen=desktop?await desktop.planFullscreen(true):false;el('fullscreen-plan-host').append(plan);el('fullscreen-summary').textContent=el('stats').querySelector('strong')?.textContent+' Folie';planView.showModal();setTimeout(fitPlan,400);}catch{toast('Vollbild konnte nicht geöffnet werden.');}finally{enteringPlan=false;}};
   el('close-plan-view').onclick=()=>planView.close();

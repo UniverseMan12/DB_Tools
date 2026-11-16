@@ -71,6 +71,14 @@ module.exports = async function smoke(win) {
   await js('document.getElementById("plan-fullscreen").click()');await pause(600);
   assert.equal(await js('document.getElementById("plan-view").open'),true);
   assert.equal(await js('document.getElementById("plan").parentElement.id'),'fullscreen-plan-host');
+  await js('document.getElementById("fullscreen-zoom").value="100";document.getElementById("fullscreen-zoom").dispatchEvent(new Event("input"));document.getElementById("plan").dispatchEvent(new WheelEvent("wheel",{deltaY:-40,ctrlKey:true,bubbles:true,cancelable:true}))');await pause(80);
+  assert.ok(Number(await js('document.getElementById("zoom").value'))>100);
+  assert.equal(await js('document.getElementById("zoom").value'),await js('document.getElementById("fullscreen-zoom").value'));
+  await js('document.getElementById("plan").dispatchEvent(new WheelEvent("wheel",{deltaY:80,metaKey:true,bubbles:true,cancelable:true}))');await pause(80);
+  assert.ok(Number(await js('document.getElementById("zoom").value'))<100);
+  const beforeScroll=await js('document.getElementById("zoom").value');
+  await js('document.getElementById("plan").dispatchEvent(new WheelEvent("wheel",{deltaY:50,bubbles:true,cancelable:true}))');await pause(80);
+  assert.equal(await js('document.getElementById("zoom").value'),beforeScroll);
   await screenshot('vollbild.png');
   await js('document.getElementById("fullscreen-zoom").value="150";document.getElementById("fullscreen-zoom").dispatchEvent(new Event("input"))');
   assert.equal(await js('document.getElementById("zoom").value'),'150');
@@ -84,5 +92,5 @@ module.exports = async function smoke(win) {
   const pdf=await win.webContents.printToPDF({printBackground:true,pageSize:'A4'});
   assert.ok(pdf.length>1000);
   fs.writeFileSync(path.join(folder,'zuschnittplan-test.pdf'),pdf);
-  return {ok:true,checks:['Animierter Einstieg','Sandbox','10 Beispielteile','Speicherung nach Neuladen','Hell- und Dunkelmodus','Schwarz-Weiss' , 'Zugabe mit Dezimalwerten', 'Plan-Vollbild','Kompakte Ansicht','Reduzierte Bewegung','GitHub-Update-Einstellungen','Projekt-Export und Import','Schnellaktionen','Ungültige Eingaben','CSV','SVG','PDF'],screenshots:folder};
+  return {ok:true,checks:['Animierter Einstieg','Sandbox','10 Beispielteile','Speicherung nach Neuladen','Hell- und Dunkelmodus','Schwarz-Weiss' , 'Zugabe mit Dezimalwerten', 'Plan-Vollbild', 'Touchpad-Pinch', 'Cmd-Mausrad', 'Normales Scrollen ohne Zoom','Kompakte Ansicht','Reduzierte Bewegung','GitHub-Update-Einstellungen','Projekt-Export und Import','Schnellaktionen','Ungültige Eingaben','CSV','SVG','PDF'],screenshots:folder};
 };

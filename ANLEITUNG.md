@@ -1,4 +1,6 @@
-# DB Tools 1.2.0 Beta 1
+# DB Tools 1.2.0 Beta 2
+
+Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
 
 ## Neuerungen
 
@@ -10,7 +12,7 @@
 
 ## Installation der Beta
 
-Die Datei `DB-Tools-1.2.0-beta.1-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
+Die Datei `DB-Tools-1.2.0-beta.2-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
 
 Die Beta wird auf Wunsch über den normalen signierten Update-Kanal verteilt. In DB Tools unter Einstellungen → Updates → Nach Updates suchen aktualisieren. Bei aktivierten automatischen Updates prüft die App im Hintergrund. Die App bleibt als Beta gekennzeichnet; das GitHub-Release wird als Latest veröffentlicht, damit der bestehende Feed es findet. Nutzer von Version 1.0.0 ohne Sparkle müssen einmal über die DMG aktualisieren.
 
