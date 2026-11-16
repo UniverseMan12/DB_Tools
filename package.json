@@ -1,0 +1,91 @@
+{
+  "name": "db-tools",
+  "version": "1.0.0",
+  "description": "DB Tools – Folien-Zuschnittplaner für macOS",
+  "author": "DB SOLUTION",
+  "private": true,
+  "main": "electron/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "icons": "node scripts/icons.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "smoke": "electron . --smoke-test",
+    "dist": "node scripts/build.cjs",
+    "release": "node scripts/build.cjs --release"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.11"
+  },
+  "devDependencies": {
+    "electron": "45.3.3",
+    "electron-builder": "26.18.0",
+    "sharp": "0.35.5"
+  },
+  "build": {
+    "appId": "ch.dbsolution.dbtools",
+    "productName": "DB Tools",
+    "copyright": "DB SOLUTION",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "app/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "artifactName": "DB-Tools-${version}-${arch}.${ext}",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.icns",
+      "minimumSystemVersion": "12.0",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "title": "DB Tools installieren",
+      "background": "build/dmg-background.png",
+      "iconSize": 96,
+      "window": {
+        "width": 680,
+        "height": 440
+      },
+      "contents": [
+        {
+          "x": 175,
+          "y": 220,
+          "type": "file"
+        },
+        {
+          "x": 505,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UniverseMan12/DB_Tools.git"
+  },
+  "overrides": {
+    "minimatch": "^11.0.1"
+  }
+}

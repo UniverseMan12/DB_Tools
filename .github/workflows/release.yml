@@ -1,0 +1,64 @@
+name: DB Tools für macOS veröffentlichen
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: db-tools-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Apple-Zugang prüfen
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          for key in CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [ -z "${!key}" ]; then
+              echo "::error::Das Repository-Secret $key fehlt. Siehe ANLEITUNG.md."
+              exit 1
+            fi
+          done
+      - run: npm ci
+      - name: Electron-Laufzeit vorbereiten
+        run: node node_modules/electron/install.js
+      - run: npm test
+      - name: Version und Tag abgleichen
+        run: node scripts/validate-release.cjs
+      - run: npm run icons
+      - name: Signierte und notarisierte DMG erstellen
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npm run release
+      - name: Signatur und Notarisierung prüfen
+        run: |
+          codesign --verify --deep --strict --verbose=2 "dist/mac-universal/DB Tools.app"
+          xcrun stapler validate "dist/mac-universal/DB Tools.app"
+          spctl --assess --type execute --verbose=2 "dist/mac-universal/DB Tools.app"
+          test -f dist/latest-mac.yml
+      - name: Release-Dateien hochladen und veröffentlichen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: node scripts/publish.cjs

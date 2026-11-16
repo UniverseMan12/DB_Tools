@@ -1,0 +1,11 @@
+node_modules/
+dist/
+qa/
+build/icon.iconset/
+build/icon.icns
+build/logo.png
+build/dmg-background.png
+*.p12
+*.key
+.env*
+!.env.example
