@@ -1,137 +1,131 @@
-# DB Tools – Installation und automatische Updates
+# DB Tools Studio · Version 1.1.0
 
-Stand: 16. November 2026 · Version 1.0.0
+## Installieren
 
-## 1. Die App installieren
+1. **DB-Tools-1.1.0-universal.dmg** öffnen.
+2. **DB Tools** in **Programme** ziehen. Eine vorhandene Version zuvor beenden und ersetzen.
+3. DMG auswerfen. DB Tools aus **Programme** starten.
 
-1. `DB-Tools-1.0.0-universal.dmg` öffnen.
-2. **DB Tools** auf den Ordner **Programme** ziehen.
-3. DMG auswerfen und **DB Tools** aus **Programme** starten.
-4. Im Willkommensbildschirm **Planung starten** oder **Mit einem Beispiel entdecken** wählen.
+Die App unterstützt Apple Silicon und Intel ab macOS 12. Sie verwendet eine kostenlose Ad-hoc-Signatur und ist nicht von Apple notarisiert. macOS kann den ersten Start deshalb blockieren. Nach einem Startversuch gegebenenfalls **Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** verwenden, sofern angeboten. Verwaltete Firmen-Macs können solche Apps grundsätzlich sperren. Die Systemeinstellungen Ihres Mac müssen dafür nicht allgemein gelockert werden. Apple beschreibt die Freigabe hier: https://support.apple.com/de-ch/102445
 
-Die DMG enthält eine universelle App für Apple Silicon und Intel. Der lokale Build wurde ohne Apple Developer ID erstellt und ist nicht notarisiert. Falls macOS den Start deshalb blockiert: einmal öffnen versuchen, dann **Systemeinstellungen → Datenschutz & Sicherheit → Dennoch öffnen** verwenden, sofern macOS diese Möglichkeit anbietet. Apples Erklärung: https://support.apple.com/de-ch/102445
+Die neue App muss einmal über die DMG installiert werden, da die alte Version 1.0.0 noch den vorherigen Updater enthält. Ab Version 1.1.0 übernimmt Sparkle weitere Updates. Vorhandene App-Eingaben bleiben erhalten: Name, App-ID und Speicherordner sind gleich geblieben. Bisher nur im Browser gespeicherte Eingaben werden nicht automatisch übernommen.
 
-Für die Weitergabe und für automatische App-Updates muss zuerst eine signierte und notarisierte Version gebaut werden. Diese erste signierte Version muss einmalig über die DMG installiert werden; danach sind weitere Neuinstallationen normalerweise nicht nötig. Dieser lokale Build umgeht keine Signaturprüfung.
+## Das neue Studio
 
-Eingaben bleiben unter `~/Library/Application Support/DB Tools/` auf diesem Mac gespeichert. Updates verwenden denselben Speicherort. Die bisherigen Eingaben aus der HTML-Version im Browser werden nicht automatisch übernommen. CSV, SVG und PDF sind Ausgaben des Plans, keine wieder einlesbaren Projektdateien.
+- **Animierter Einstieg:** dreiteilige Einführung mit Folienrolle, Lichtscan, beweglichen Zuschnitten und leichter Bewegung bei Mauszeigerbewegungen. Oben rechts jederzeit direkt zur Planung wechseln. Über **?** in der Seitenleiste lässt sich die Einführung erneut öffnen.
+- **Hell, Dunkel, System:** oben rechts mit **◐** schnell wechseln. Im Zahnrad unter **Erscheinungsbild** lässt sich auch der Systemmodus wählen.
+- **Drei Akzentfarben:** Limette, Mint oder Amber.
+- **Bewegung reduzieren:** Animationen lassen sich in den Einstellungen ausschalten. Die macOS-Einstellung für reduzierte Bewegung wird berücksichtigt.
+- **Kompakte Darstellung:** mehr Eingaben und Ergebnisse auf kleinerer Fläche.
+- **Planungsstandards:** Standardbreite und -länge der Rolle, Folientyp und Zugabe einstellen. Bestehende Planungen werden dabei nicht verändert. Mit dem separaten Button kann bewusst eine neue Planung gestartet werden.
+- **Projektdateien:** Eingaben und persönliche Einstellungen als JSON sichern und später wieder öffnen. Beim Öffnen wird die aktuelle Planung nach Rückfrage ersetzt und der Zuschnitt neu berechnet. CSV, SVG und PDF bleiben reine Ergebnisexporte.
+- **Datenspeicherung:** das automatische Speichern der Eingaben lässt sich abschalten. Dann werden neue Änderungen nicht automatisch gesichert; eine ältere Sicherung kann weiterhin vorhanden sein. Projektdateien können jederzeit manuell gespeichert werden.
+- **Schnellaktionen:** mit **⌘K** die Aktionspalette öffnen. **⌘S** sichert ein Projekt, **⌘O** öffnet eines, **⌘↵** berechnet und **⌘,** öffnet die Einstellungen.
 
-## 2. Apple-Zertifikat erstellen
+Die MaxRects-Berechnung bleibt lokal und vergleicht 15 Anordnungen. Ein mathematisch garantiertes Optimum wird nicht zugesichert. Maximal 200 einzelne Zuschnitte, Rollenbreite bis 1.000 cm, Länge bis 100 m. Masse vor dem Schneiden kontrollieren.
 
-Benötigt wird **Developer ID Application** für die Verteilung ausserhalb des Mac App Store.
+## Automatische Updates ohne Apple-Abonnement
 
-1. Mit deinem Apple Account beim Apple Developer Program anmelden: https://developer.apple.com/programs/enroll/ . Die Mitgliedschaft kostet laut Apple 99 USD jährlich beziehungsweise den lokalen Preis. Der kostenlose Entwicklerzugang genügt für dieses Verteilungszertifikat nicht.
-2. Nach Aktivierung auf deinem Mac die **Schlüsselbundverwaltung** öffnen.
-3. Im Menü **Schlüsselbundverwaltung → Zertifikatsassistent → Zertifikat von einer Zertifizierungsinstanz anfordern** wählen.
-4. Deine E-Mail und deinen Namen eintragen. Die E-Mail der Zertifizierungsstelle leer lassen. **Auf Festplatte speichern** wählen. Die Datei endet auf `.certSigningRequest`.
-5. https://developer.apple.com/account/resources/certificates/list öffnen und bei **Certificates** auf **+** klicken.
-6. **Developer ID Application** auswählen und die eben gespeicherte Anfrage hochladen. Falls Apple eine Auswahl der Zertifizierungsstelle anbietet, die aktuelle empfohlene Variante verwenden.
-7. Die `.cer`-Datei herunterladen und per Doppelklick in den Schlüsselbund importieren.
-8. Unter **Meine Zertifikate** sollte **Developer ID Application: Dein Name (TEAMID)** erscheinen. Aufklappen: darunter muss der private Schlüssel sichtbar sein. Die Anfrage und das Importieren auf demselben Mac durchführen.
+**Für diese Update-Lösung ist kein Apple-Entwicklerzertifikat erforderlich.** Die App nutzt Sparkle mit einem eigenen Ed25519-Schlüssel.
 
-Apple-Anleitungen:
-- https://developer.apple.com/de/help/account/certificates/create-developer-id-certificates
-- https://developer.apple.com/help/account/certificates/create-a-certificate-signing-request
-- https://developer.apple.com/help/account/membership/program-enrollment/
+Es gibt zwei unabhängige Prüfungen:
 
-## 3. GitHub einmalig einrichten
+1. Die kostenlose Ad-hoc-Signatur prüft die Integrität des macOS-App-Bundles. Sie bestätigt keine bei Apple registrierte Entwickleridentität.
+2. Sparkle prüft Update-Dateien und die Update-Liste mit dem fest in der App hinterlegten öffentlichen Schlüssel. Ein manipuliertes oder mit einem anderen Schlüssel signiertes Update wird abgelehnt.
 
-Repository: https://github.com/UniverseMan12/DB_Tools
+Update-Quelle: https://github.com/UniverseMan12/DB_Tools/releases
 
-Es ist öffentlich. Dadurch können installierte Apps Updates ohne GitHub-Anmeldung laden. Es darf kein persönlicher GitHub-Zugriffsschlüssel in die App eingebaut werden.
+Die App prüft nach dem Start und dann ungefähr alle vier Stunden. Verfügbare Versionen werden im Hintergrund geladen und bei normalem Beenden mit **⌘Q** installiert. Die App erzwingt keinen Neustart während Ihrer Arbeit. Ein bereitliegendes Update kann über **Einstellungen → Updates → Update öffnen** im nativen Sparkle-Fenster installiert werden. Bei einer manuell gestarteten Prüfung kann Sparkle ein Bestätigungsfenster für Download und Installation anzeigen. Benötigt die Installation Schreibrechte, kann macOS nach einer Berechtigung fragen.
 
-### Zertifikat für GitHub Actions exportieren
+Die automatische Prüfung und das automatische Laden lassen sich unter **Updates** deaktivieren. Schon vorbereitete Updates können weiterhin beim Beenden installiert werden. Offline bleibt die Zuschnittplanung voll nutzbar.
 
-1. In der Schlüsselbundverwaltung unter **Meine Zertifikate** dein **Developer ID Application** mitsamt privatem Schlüssel auswählen.
-2. Über **Exportieren** eine kennwortgeschützte `.p12`-Datei speichern, beispielsweise `DeveloperID.p12`. Wenn `.p12` nicht auswählbar ist, fehlt meist der zugehörige private Schlüssel.
-3. Zum Kopieren als Base64 im Terminal eingeben; den Pfad anpassen:
+Öffentlich gehostete GitHub-Releases und die hier verwendeten Standard-GitHub-Actions-Runner für öffentliche Repositories benötigen im regulären kostenlosen Angebot kein Apple-Abonnement und keine laufende eigene Servermiete. Plattformbedingungen und Limits von GitHub gelten weiterhin.
+
+## Einmalig den Update-Schlüssel in GitHub hinterlegen
+
+Der private Schlüssel wurde separat als **DB-Tools-Updates.private** mitgeliefert. Er ist weder Teil der App noch des Quellcode-ZIPs oder des öffentlichen Repositories. Der öffentliche Gegenpart steht in `electron/update-config.json` und ist fest in die App eingebaut.
+
+**Bewahren Sie die private Datei sicher auf.** Sie erlaubt es, von Ihren installierten Apps akzeptierte Updates zu signieren. Ohne diesen Schlüssel lassen sich bestehende Installationen nicht mehr auf die gleiche Weise aktualisieren. Bei Verlust oder Kompromittierung ist gegebenenfalls eine neue manuelle Installation mit neuem Schlüssel nötig.
+
+1. Im Repository https://github.com/UniverseMan12/DB_Tools **Settings → Secrets and variables → Actions → New repository secret** öffnen.
+2. Als Name **SPARKLE_PRIVATE_KEY** eintragen.
+3. Den vollständigen einzeiligen Inhalt von **DB-Tools-Updates.private** als Secret-Wert einfügen und **Add secret** wählen. Den Inhalt niemals in einen Commit, ein Issue, eine Release-Beschreibung oder eine Chatnachricht kopieren.
+4. Für die erste Veröffentlichung unter **Actions → DB Tools für macOS veröffentlichen → Run workflow** den Branch `main` starten. Falls Version 1.1.0 bereits veröffentlicht ist, zunächst eine höhere Version setzen.
+
+Die alten Apple-Secrets `CSC_LINK`, `CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD` und `APPLE_TEAM_ID` werden nicht mehr verwendet. Für die kostenlose Variante wird nur **SPARKLE_PRIVATE_KEY** benötigt. GitHubs temporärer Veröffentlichungstoken wird automatisch vom Workflow bereitgestellt; er wird nicht in die App eingebaut.
+
+GitHub-Dokumentation zu Secrets: https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
+
+## Eine neue Version veröffentlichen
+
+### Mit Git und Terminal
+
+Einmalig das Repository holen; Node.js 24 und die macOS Command Line Tools müssen installiert sein:
 
 ```sh
-base64 -i "/Pfad/zu/DeveloperID.p12" | pbcopy
+git clone https://github.com/UniverseMan12/DB_Tools.git
+cd DB_Tools
+npm ci
+node node_modules/electron/install.js
+npm run icons
 ```
 
-4. Im Repository **Settings → Secrets and variables → Actions → New repository secret** öffnen und diese fünf Secrets anlegen:
+Danach die gewünschten Dateien ändern. Für Gestaltung sind `app/studio.css` und `app/studio.js` relevant, für die Oberfläche `app/index.html`, für die Berechnung `app/app.js` und `app/packing.js`.
 
-| Secret | Inhalt |
-| --- | --- |
-| `CSC_LINK` | Vollständiger Base64-Inhalt der `.p12`-Datei aus der Zwischenablage |
-| `CSC_KEY_PASSWORD` | Das beim Export festgelegte `.p12`-Kennwort |
-| `APPLE_ID` | E-Mail deines Apple-Entwicklerkontos |
-| `APPLE_APP_SPECIFIC_PASSWORD` | Anwendungsspezifisches Apple-Passwort für die Notarisierung |
-| `APPLE_TEAM_ID` | Zehnstellige Team ID aus deinem Apple-Entwicklerkonto |
+Beispiel für Version 1.1.1:
 
-Ein anwendungsspezifisches Passwort wird unter https://account.apple.com/ im Bereich **Anmelden und Sicherheit → Anwendungsspezifische Passwörter** erstellt. Dein normales Apple-Passwort gehört nicht in dieses Feld. Apple-Anleitung: https://support.apple.com/de-ch/102654
+```sh
+npm test
+npm run smoke
+npm version patch --no-git-tag-version
+git add .
+git commit -m "DB Tools 1.1.1"
+git push origin main
+git tag v1.1.1
+git push origin v1.1.1
+```
 
-Zertifikat mit privatem Schlüssel, `.p12`-Datei und Kennwörter bleiben ausserhalb des öffentlichen Repositories und gehören weder in Chatnachrichten noch in Quellcode. GitHub speichert sie über die Secrets-Einstellungen. GitHub-Anleitung: https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-secrets
+Die Nummer im Git-Tag muss exakt zur Version in `package.json` passen. `npm version` aktualisiert auch die Lockdatei. Der Workflow prüft das und verweigert das Überschreiben bereits veröffentlichter Versionen.
 
-### Erste signierte Version veröffentlichen
+GitHub erstellt dann die universelle App und DMG, integriert Sparkle, signiert die Update-ZIP und den Appcast und veröffentlicht die Dateien gemeinsam. Installierte Apps finden die neue Version bei der nächsten Prüfung.
 
-1. Projektdateien einschliesslich `.github/workflows/release.yml` in das Repository übernehmen, sofern noch nicht vorhanden. `node_modules`, `dist`, Kennwörter und Zertifikate nicht hochladen.
-2. Im Repository **Actions → DB Tools für macOS veröffentlichen → Run workflow** auswählen und den Branch `main` starten.
-3. Der Workflow prüft die Secrets, erstellt die universelle App, signiert sie, reicht sie zur Notarisierung bei Apple ein und prüft das Ergebnis. Erst danach veröffentlicht er das GitHub Release `v1.0.0` mit allen Update-Dateien. Der Vorgang kann mehrere Minuten dauern; die erste Notarisierung mitunter länger.
-4. Unter **Releases** die neue signierte DMG laden und DB Tools im Programme-Ordner ersetzen. Vorher die App beenden. Eingaben bleiben bei gleichem App-Namen und Speicherpfad erhalten.
-5. In **DB Tools → Einstellungen** beziehungsweise über **Updates** die Prüfung testen. Es sollte „auf dem neuesten Stand“ erscheinen. Für einen vollständigen Test anschliessend Version 1.0.1 veröffentlichen und von der installierten signierten Version 1.0.0 aktualisieren.
+### Im GitHub-Webeditor
 
-Wenn der Workflow nicht in Actions erscheint, fehlt die Workflow-Datei im Standardbranch oder Actions ist in den Repository-Einstellungen deaktiviert. Falls die GitHub-Verbindung das Schreiben nach `.github/workflows/` nicht gestattet, diese Datei über GitHub im Browser hochladen.
+Die Dateien im Repository bearbeiten und committen. Vor einer Veröffentlichung die Version in `package.json` und den beiden Versionsfeldern am Anfang der `package-lock.json` gleich erhöhen. Dann unter **Actions** den Veröffentlichungsworkflow manuell starten. Eine reine HTML-Änderung ohne neue Version und ohne Build ist noch kein verteilbares App-Update.
 
-## 4. Spätere Änderungen automatisch ausliefern
-
-Beispiel: Du möchtest das Layout der App ändern.
-
-1. Gewünschte Dateien unter `app/` ändern, beispielsweise `app/index.html`, `app/style.css` oder `app/app.js`.
-2. Im Projektordner mit Node.js 24 prüfen und die Versionsnummer erhöhen:
+## Lokal bauen und manuell veröffentlichen
 
 ```sh
 npm ci
 node node_modules/electron/install.js
+npm run icons
 npm test
-npm run smoke
-npm version patch --no-git-tag-version
+npm run dist
 ```
 
-3. Die Version steigt beispielsweise von `1.0.0` auf `1.0.1`. `package.json` und `package-lock.json` gemeinsam übernehmen.
-4. Änderungen committen und einen genau passenden Tag pushen:
+Die App und Archive liegen unter `dist-free/`. Zum Signieren im Terminal den Pfad zur privaten Datei angeben:
 
 ```sh
-git add .
-git commit -m "DB Tools 1.0.1"
-git push origin main
-git tag v1.0.1
-git push origin v1.0.1
+export SPARKLE_PRIVATE_KEY_FILE="/Pfad/zu/DB-Tools-Updates.private"
+npm run appcast
 ```
 
-5. Der GitHub-Workflow baut, signiert, notarisiert und veröffentlicht das Release. Er verweigert das Überschreiben einer bereits veröffentlichten Version.
-6. Installierte Apps finden das Release nach dem Start oder bei der nächsten Prüfung. Sie laden das Update im Hintergrund und installieren es beim Beenden. Ein vorbereitetes Update kann in den Einstellungen auch mit **Jetzt neu starten** installiert werden. Die App erzwingt während der Arbeit keinen Neustart.
+Das Script prüft zuerst, dass der Schlüssel zur App passt. Dann erzeugt und prüft es die signierte Update-Liste. Für ein Release müssen genau diese drei zusammengehörigen Dateien hochgeladen werden:
 
-Alternativ im GitHub-Webeditor die Dateien samt Versionsnummer ändern und anschliessend den Workflow manuell starten. Auch hier für jede Veröffentlichung die Versionsnummer erhöhen. Nur die HTML-Datei zu ändern reicht nicht: Der Workflow muss die Änderung in eine neue App-Version verpacken.
+- `DB-Tools-VERSION-universal.dmg`
+- `DB-Tools-VERSION-universal.zip`
+- `appcast.xml`
 
-## 5. Was der Auto-Updater benötigt
+Als Release-Tag `vVERSION` verwenden, beispielsweise `v1.1.0`. Zuerst alle Dateien in einen Release-Entwurf hochladen, danach veröffentlichen. Dateinamen, Appcast oder ZIP nach dem Signieren nicht verändern. Die Download-Links im Appcast sind versionsgebunden; der feste Feed-Link in der App verweist auf den Appcast des neuesten stabilen Releases.
 
-- Stabile veröffentlichte Releases im öffentlichen Repository **UniverseMan12/DB_Tools**.
-- Eine mit Apple Developer ID signierte installierte App und entsprechend signierte spätere Versionen, aus demselben Apple-Team.
-- Zu jedem Release die vom Build erzeugten Dateien: universelle `.zip`, `.dmg`, Blockmaps und `latest-mac.yml`.
-- Internet für die Update-Prüfung. Die Zuschnittplanung funktioniert weiterhin offline.
+## Prüfstand dieser Lieferung
 
-Die Datei `latest-mac.yml` enthält Versions- und Prüfsummeninformationen. Keine Dateinamen nachträglich ändern und die YAML-Datei nicht von Hand erfinden. Der Workflow lädt zuerst sämtliche Dateien in einen Entwurf und macht das Release erst anschliessend öffentlich. Entwürfe und Vorabversionen werden vom stabilen Updater nicht als reguläre Updates angeboten.
+- Eine separate, ad-hoc-signierte Test-App wurde mit der echten Sparkle-Integration von 1.1.0 auf 1.1.1 aktualisiert.
+- Das Update wurde im Hintergrund geladen und nach dem Beenden installiert.
+- Nach erneutem Start war Version 1.1.1 aktiv; gespeicherte Zuschnittdaten und ein zusätzlicher Prüfwert waren erhalten.
+- Geänderte Appcast-Daten und ein manipuliertes Update-Archiv wurden durch die offizielle Signaturprüfung abgelehnt.
+- Hell-/Dunkelmodus, Akzentfarben, kompakte Darstellung, reduzierte Bewegung, Projekt-Import/Export, Berechnung sowie CSV/SVG/PDF wurden geprüft.
 
-Die Update-Prüfung läuft beim Start nach etwa 12 Sekunden und danach alle vier Stunden, solange die App läuft. Die automatische Prüfung lässt sich deaktivieren. Eine manuell gestartete Prüfung lädt ein gefundenes Update ebenfalls herunter. Ein bereits geladenes Update wird beim Beenden installiert.
+Sparkle-Dokumentation: https://sparkle-project.org/documentation/
 
-Dokumentation zum macOS-Updater und zur Signaturpflicht: https://www.electron.build/v26/docs/features/auto-update/
-
-## 6. Lokal signiert bauen, ohne GitHub Actions
-
-Mit installiertem Zertifikat und Xcode/Command Line Tools im Projektordner:
-
-```sh
-export CSC_NAME="Developer ID Application: Dein Name (DEINETEAMID)"
-export APPLE_ID="deine-apple-id@example.com"
-export APPLE_TEAM_ID="DEINETEAMID"
-read -s "APPLE_APP_SPECIFIC_PASSWORD?Anwendungsspezifisches Apple-Passwort: "
-export APPLE_APP_SPECIFIC_PASSWORD
-npm run release
-```
-
-Das Beispiel verwendet die macOS-Standardshell zsh. Der Build bricht ab, wenn die erforderliche Signierung oder Notarisierung fehlt. Die Dateien aus `dist/` gemeinsam in ein neues GitHub Release mit passendem `v…`-Tag hochladen. Niemals den Ordner `mac-universal` als Update hochladen: Der Updater benötigt die ZIP und die erzeugten Metadaten.
-
-## 7. Stand der mitgelieferten Version
-
-Die lokale DMG enthält die funktionsfähige App samt Willkommensbildschirm, Logo und integriertem GitHub-Updater. Ohne dein Apple-Zertifikat konnten Apple-Signierung, Notarisierung und ein echter Update-Wechsel zwischen zwei signierten Versionen nicht ausgeführt werden. Die App zeigt diesen Einrichtungsstatus ausdrücklich an. Der Workflow und die Veröffentlichungsschritte sind für die anschliessende Aktivierung vorbereitet.
+Electron-Integration und Ad-hoc-Verteilung: https://github.com/biw/electron-sparkle#readme

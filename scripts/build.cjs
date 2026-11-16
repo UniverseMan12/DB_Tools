@@ -1,21 +1,39 @@
 'use strict';
 const { build, Platform } = require('electron-builder');
 const { Arch } = require('builder-util');
+const { electronSparkle } = require('electron-sparkle/electron-builder');
 const path = require('node:path');
 const asar = require('@electron/asar');
-const release = process.argv.includes('--release');
+const config = require('../electron/update-config.json');
+const staging = process.argv.includes('--staging');
+const dirOnly = process.argv.includes('--dir');
+const output = staging ? process.env.DB_TOOLS_QA_OUT || 'qa-builds/staging' : 'dist-free';
+const name = staging ? 'DB Tools Update-Test' : 'DB Tools';
 (async () => {
-  if (release && !(process.env.APPLE_ID && process.env.APPLE_APP_SPECIFIC_PASSWORD && process.env.APPLE_TEAM_ID) && !process.env.APPLE_API_KEY) throw Error('Apple-Zugang für die Notarisierung fehlt. Siehe Anleitung.');
-  if (release && !process.env.CSC_NAME && !process.env.CSC_LINK) throw Error('CSC_NAME oder CSC_LINK für Developer ID Application angeben.');
-    await build({ targets: Platform.MAC.createTarget(['dmg', 'zip'], Arch.universal), publish: 'never', config: {
-      forceCodeSigning: release,
-      afterPack: async context => {
-        const archive = path.join(context.appOutDir, 'DB Tools.app/Contents/Resources/app.asar');
-        for (const file of ['package.json', 'electron/main.cjs', 'app/index.html', 'node_modules/electron-updater/package.json']) {
-          if (!asar.extractFile(archive, file).length) throw Error('Unvollständiger App-Build: ' + file);
-        }
-      },
-      mac: release ? { identity: process.env.CSC_NAME, notarize: true } : { identity: null, notarize: false },
-      publish: [{ provider: 'github', owner: 'UniverseMan12', repo: 'DB_Tools', private: false, releaseType: 'release', publishAutoUpdate: release }]
-    } });
-})().catch(e => { console.error(e.message); process.exitCode = 1; });
+  if (!/^[A-Za-z0-9+/]{43}=$/.test(config.publicEdKey)) throw Error('Gültiger öffentlicher Update-Schlüssel fehlt.');
+  await build({ targets: Platform.MAC.createTarget(dirOnly ? ['dir'] : staging ? ['zip'] : ['dmg', 'zip'], staging ? Arch.arm64 : Arch.universal), publish: 'never', config: {
+    productName: name,
+    appId: staging ? 'ch.dbsolution.dbtools.updatetest' : 'ch.dbsolution.dbtools',
+    directories: { output }, forceCodeSigning: false,
+    ...(staging ? { extraMetadata: { version: process.env.DB_TOOLS_QA_VERSION || '1.1.0', dbToolsUpdateTest: true } } : {}),
+    mac: {
+      identity: '-', hardenedRuntime: false, notarize: false,
+      extendInfo: {
+        SUFeedURL: staging ? 'http://127.0.0.1:8765/appcast.xml' : config.feedUrl,
+        SUPublicEDKey: config.publicEdKey,
+        SUEnableAutomaticChecks: true, SUAutomaticallyUpdate: true, SUAllowsAutomaticUpdates: true,
+        SUScheduledCheckInterval: 14400, SUShowReleaseNotes: false,
+        SUVerifyUpdateBeforeExtraction: true, SURequireSignedFeed: true,
+        SUSignedFeedFailureExpirationInterval: 0, CFBundleLocalizations: ['de', 'en']
+      }
+    },
+    dmg: { writeUpdateInfo: false, sign: false }, publish: null,
+    afterPack: async context => {
+      const archive = path.join(context.appOutDir, name + '.app/Contents/Resources/app.asar');
+      for (const file of ['package.json', 'electron/main.cjs', 'app/index.html', 'node_modules/electron-sparkle/package.json']) {
+        if (!asar.extractFile(archive, file).length) throw Error('Unvollständiger App-Build: ' + file);
+      }
+      await electronSparkle(context);
+    }
+  } });
+})().catch(e => { console.error(e); process.exitCode = 1; });

@@ -1,0 +1,111 @@
+'use strict';
+(() => {
+document.addEventListener('DOMContentLoaded', () => {
+  const el=id=>document.getElementById(id), all=selector=>[...document.querySelectorAll(selector)];
+  const desktop=window.desktop, api=window.DBToolsPreferencesAPI;
+  let prefs=window.DBToolsPreferences;
+  const welcome=el('welcome'), settings=el('preferences'), commands=el('command-palette');
+  const themeQuery=matchMedia('(prefers-color-scheme: dark)'), motionQuery=matchMedia('(prefers-reduced-motion: reduce)');
+  let toastTimer, welcomeTimer, currentStep=0, updateState={kind:'idle',message:'Kostenlose Updates über GitHub.'};
+  function toast(text) {el('toast').querySelector('p').textContent=text;el('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el('toast').classList.remove('show'),3200);}
+  function applyPrefs(saveIt=true) {
+    prefs=api.clean(prefs);window.DBToolsPreferences=prefs;
+    const root=document.documentElement;
+    root.dataset.theme=prefs.theme==='system'?(themeQuery.matches?'dark':'light'):prefs.theme;
+    root.dataset.accent=prefs.accent;root.dataset.density=prefs.density;
+    root.dataset.motion=prefs.motion&&!motionQuery.matches?'full':'reduced';
+    el('pref-motion').checked=prefs.motion;el('pref-compact').checked=prefs.density==='compact';el('pref-welcome').checked=prefs.launchWelcome;el('pref-autosave').checked=prefs.autosave;
+    el('pref-roll-w').value=prefs.defaultRollW;el('pref-roll-h').value=prefs.defaultRollH;el('pref-allowance').value=prefs.defaultAllowance;el('pref-film').value=prefs.defaultFilm;
+    all('[data-theme-option]').forEach(button=>{const selected=button.dataset.themeOption===prefs.theme;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});
+    all('button[data-accent]').forEach(button=>{const selected=button.dataset.accent===prefs.accent;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});
+    el('save-state').textContent=prefs.autosave?'Lokal gespeichert':'Automatisches Speichern pausiert';
+    if(saveIt) {try{localStorage.setItem(api.KEY,JSON.stringify(prefs));}catch{toast('Einstellungen konnten nicht gespeichert werden.');}}
+    if(welcome.open) scheduleWelcome();
+  }
+  themeQuery.addEventListener('change',()=>applyPrefs(false));motionQuery.addEventListener('change',()=>applyPrefs(false));
+  all('[data-theme-option]').forEach(button=>button.onclick=()=>{prefs.theme=button.dataset.themeOption;applyPrefs();});
+  all('button[data-accent]').forEach(button=>button.onclick=()=>{prefs.accent=button.dataset.accent;applyPrefs();});
+  function toggleTheme(){prefs.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';applyPrefs();toast(prefs.theme==='dark'?'Dunkelmodus aktiviert.':'Hellmodus aktiviert.');}
+  el('theme-toggle').onclick=toggleTheme;
+  for(const [id,key] of [['pref-motion','motion'],['pref-welcome','launchWelcome'],['pref-autosave','autosave']])el(id).onchange=()=>{prefs[key]=el(id).checked;applyPrefs();if(key==='autosave'&&prefs.autosave)save();};
+  el('pref-compact').onchange=()=>{prefs.density=el('pref-compact').checked?'compact':'comfortable';applyPrefs();};
+  for(const [id,key] of [['pref-roll-w','defaultRollW'],['pref-roll-h','defaultRollH'],['pref-allowance','defaultAllowance']])el(id).onchange=()=>{if(!el(id).checkValidity()||!el(id).value.trim()){el(id).reportValidity();return;}prefs[key]=Number(el(id).value);applyPrefs();};
+  el('pref-film').onchange=()=>{prefs.defaultFilm=el('pref-film').value;applyPrefs();};
+  function selectTab(tab) {
+    all('[data-tab]').forEach(button=>{const active=button.dataset.tab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
+    all('[data-panel]').forEach(panel=>panel.hidden=panel.dataset.panel!==tab);
+    el('preferences-title').removeAttribute('id');
+    document.querySelector('[data-panel="'+tab+'"] h2').id='preferences-title';
+    document.querySelector('.settings-content').scrollTop=0;
+  }
+  all('[data-tab]').forEach(button=>button.onclick=()=>selectTab(button.dataset.tab));
+  async function showSettings(tab='appearance') {
+    commands.close(); if(welcome.open)welcome.close();
+    selectTab(tab);applyPrefs(false);
+    if(desktop){const s=await desktop.settings();el('automatic-updates').checked=s.automatic;updateStatus(s.state);}
+    if(!settings.open)settings.showModal();
+  }
+  el('settings-button').onclick=()=>showSettings();el('rail-settings').onclick=()=>showSettings();el('close-preferences').onclick=()=>settings.close();
+  function updateStatus(state) {
+    updateState=state;el('update-message').textContent=state.message;
+    el('update-indicator').classList.toggle('ready',state.kind==='ready');
+    el('install-update').hidden=state.kind!=='ready';
+    el('check-updates').disabled=['checking','downloading','installing'].includes(state.kind);
+    el('update-progress').hidden=state.kind!=='downloading';
+    if(state.kind==='ready')toast('Ein neues DB-Tools-Update ist bereit.');
+  }
+  el('automatic-updates').onchange=async()=>{
+    if(!desktop)return;
+    try{await desktop.saveSettings({automatic:el('automatic-updates').checked});el('save-feedback').textContent='Update-Einstellungen gespeichert.';}
+    catch{toast('Update-Einstellungen konnten nicht gespeichert werden.');}
+  };
+  el('check-updates').onclick=async()=>{if(desktop)updateStatus(await desktop.checkUpdates());};
+  el('install-update').onclick=()=>desktop?.installUpdate();
+  if(desktop){
+    desktop.onUpdate(updateStatus);
+    desktop.onMenu(action=>{if(action==='welcome')showWelcome();else if(action==='updates')showSettings('updates');else if(action==='settings')showSettings();else if(action==='export')exportProject();else if(action==='import')chooseProject();});
+    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent='Version '+info.version);el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
+  } else {el('check-updates').disabled=true;el('signing-note').textContent='Updates sind in der macOS-App verfügbar.';}
+  const slides=[
+    ['Gross denken.<br><em>Präzise</em><br>zuschneiden.','Aus Material wird Möglichkeit. Ihr Studio für durchdachte Zuschnitte – vom ersten Mass bis zum letzten Zentimeter.','Jede Rolle hat Potenzial.','Sie geben die Masse vor. DB Tools bringt Ordnung hinein.'],
+    ['Weniger Rest.<br><em>Mehr</em><br>Möglichkeiten.','Teile erfassen. Anordnungen vergleichen. Reststücke sichtbar machen. Damit aus einer Rolle ein durchdachter Plan wird.','Material bewusst nutzen.','Unifolie oder Strukturfolie – mit Ihrer Laufrichtung im Blick.'],
+    ['Ihr Plan.<br><em>Bereit</em><br>für die Werkstatt.','Vom Bildschirm an den Arbeitstisch. Sichern Sie Ihr Projekt, exportieren Sie den Zuschnitt oder drucken Sie Ihren Plan.','Alles für den nächsten Schritt.','Projektdatei, CSV, SVG und PDF – für Ihren Workflow.']
+  ];
+  function setStep(index){currentStep=index;const s=slides[index];el('welcome-title').innerHTML=s[0];el('welcome-description').textContent=s[1];el('welcome-step-title').textContent=s[2];el('welcome-step-detail').textContent=s[3];el('welcome-step-icon').textContent='0'+(index+1);el('welcome-step-number').textContent='0'+(index+1)+' / 03';all('[data-welcome-step]').forEach(b=>b.classList.toggle('active',Number(b.dataset.welcomeStep)===index));if(prefs.motion&&!motionQuery.matches)el('welcome-text').animate([{opacity:0,transform:'translateY(9px)'},{opacity:1,transform:'translateY(0)'}],{duration:450,easing:'ease-out'});}
+  function scheduleWelcome(){clearInterval(welcomeTimer);if(welcome.open&&prefs.motion&&!motionQuery.matches)welcomeTimer=setInterval(()=>setStep((currentStep+1)%slides.length),9000);}
+  all('[data-welcome-step]').forEach(button=>button.onclick=()=>{setStep(Number(button.dataset.welcomeStep));scheduleWelcome();});
+  function showWelcome(){commands.close();settings.close();setStep(0);if(!welcome.open)welcome.showModal();scheduleWelcome();}
+  function enter(example=false){localStorage.setItem('db-tools-welcome-studio-v1','done');welcome.close();if(example){el('example').click();el('calculate').click();}else document.querySelector('#rows input')?.focus();}
+  welcome.addEventListener('close',()=>clearInterval(welcomeTimer));
+  el('start-planning').onclick=()=>enter();el('skip-welcome').onclick=()=>enter();el('start-example').onclick=()=>enter(true);
+  el('welcome-again').onclick=showWelcome;el('settings-welcome').onclick=showWelcome;el('brand-home').onclick=event=>{event.preventDefault();showWelcome();};
+  welcome.addEventListener('pointermove',event=>{if(!prefs.motion||motionQuery.matches)return;const bounds=welcome.getBoundingClientRect();const x=(event.clientX-bounds.left)/bounds.width-.5;const y=(event.clientY-bounds.top)/bounds.height-.5;welcome.style.setProperty('--pointer-x',x*10+'px');welcome.style.setProperty('--pointer-y',y*8+'px');});
+  function confirmAction(description,action,label='Fortfahren'){
+    const dialog=el('confirm-dialog');el('confirm-description').textContent=description;el('confirm-accept').textContent=label;
+    el('confirm-cancel').onclick=()=>dialog.close();el('confirm-accept').onclick=()=>{dialog.close();action();};dialog.showModal();
+  }
+  function snapshot(){const planner={rows:rowsData()};FIELDS.forEach(id=>planner[id]=el(id).value);return {format:'db-tools-project',version:1,createdAt:new Date().toISOString(),planner,preferences:prefs};}
+  function exportProject(){const data=snapshot();download('DB-Tools-Projekt-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2),'application/json');toast('Projektdatei wird gespeichert.');}
+  function chooseProject(){el('project-file').value='';el('project-file').click();}
+  function applyPlanner(planner){FIELDS.forEach(id=>{el(id).value=planner[id];});el('rows').innerHTML='';(planner.rows.length?planner.rows:[['','','','1']]).forEach(row=>addRow(row));sync();stale();save();}
+  el('project-file').onchange=async()=>{
+    const file=el('project-file').files[0];if(!file)return;
+    try{if(file.size>1024*1024)throw Error('Die Projektdatei ist zu gross.');const data=api.project(JSON.parse(await file.text()));
+      confirmAction('Die laufenden Eingaben werden durch das gewählte Projekt ersetzt. Sichern Sie Ihre aktuelle Planung bei Bedarf zuerst.',()=>{prefs=data.preferences;applyPrefs();applyPlanner(data.planner);settings.close();toast('Projekt geöffnet. Zuschnitt wird neu berechnet.');calculate();},'Projekt öffnen');
+    }catch(error){toast(error.message.startsWith('Unexpected')?'Die Datei enthält kein gültiges JSON-Projekt.':error.message);}
+  };
+  el('import-project').onclick=chooseProject;el('rail-project').onclick=chooseProject;el('settings-import').onclick=chooseProject;
+  el('export-project').onclick=exportProject;el('settings-export').onclick=exportProject;
+  el('new-project-defaults').onclick=()=>confirmAction('Die laufenden Eingaben werden durch eine leere Planung mit Ihren gespeicherten Standardwerten ersetzt.',()=>{applyPlanner({rollW:String(prefs.defaultRollW),rollH:String(prefs.defaultRollH),film:prefs.defaultFilm,allowance:String(prefs.defaultAllowance),measure:'finished',rows:[]});settings.close();toast('Neue Planung mit Ihren Standardwerten erstellt.');},'Neue Planung');
+  el('reset-preferences').onclick=()=>confirmAction('Darstellung und Planungsstandards werden auf die Ausgangswerte zurückgesetzt. Ihre eingegebenen Zuschnitte bleiben erhalten.',()=>{prefs={...api.defaults};applyPrefs();toast('Darstellung und Standards zurückgesetzt.');},'Zurücksetzen');
+  function showCommands(){if(!commands.open)commands.showModal();}
+  el('command-button').onclick=showCommands;
+  const actions={calculate:()=>{settings.close();welcome.close();calculate();},export:exportProject,import:chooseProject,theme:toggleTheme,settings:()=>showSettings(),welcome:showWelcome};
+  all('[data-command]').forEach(button=>button.onclick=()=>{commands.close();actions[button.dataset.command]();});
+  document.addEventListener('keydown',event=>{if(!(event.metaKey||event.ctrlKey)||event.altKey)return;const key=event.key.toLowerCase();const action=key==='k'?showCommands:key==='s'?exportProject:key==='o'?chooseProject:key===','?()=>showSettings():key==='enter'?actions.calculate:null;if(action){event.preventDefault();action();}});
+  document.addEventListener('dbtools:calculated',()=>{if(prefs.motion&&!motionQuery.matches)document.querySelector('.result-head').animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:350});toast('Zuschnitt geprüft. Ihr Plan ist bereit.');});
+  applyPrefs(false);
+  if(!localStorage.getItem('dbs-zuschnitt-v2')){el('rollW').value=prefs.defaultRollW;el('rollH').value=prefs.defaultRollH;el('allowance').value=prefs.defaultAllowance;el('film').value=prefs.defaultFilm;sync();}
+  if(!localStorage.getItem('db-tools-welcome-studio-v1')||prefs.launchWelcome)showWelcome();
+});
+})();

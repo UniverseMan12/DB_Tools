@@ -1,6 +1,6 @@
 {
   "name": "db-tools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "DB Tools – Folien-Zuschnittplaner für macOS",
   "author": "DB SOLUTION",
   "private": true,
@@ -11,10 +11,8 @@
     "test": "node --test tests/*.test.cjs",
     "smoke": "electron . --smoke-test",
     "dist": "node scripts/build.cjs",
-    "release": "node scripts/build.cjs --release"
-  },
-  "dependencies": {
-    "electron-updater": "6.8.11"
+    "release": "node scripts/build.cjs",
+    "appcast": "node scripts/appcast.cjs"
   },
   "devDependencies": {
     "electron": "45.3.3",
@@ -84,5 +82,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/UniverseMan12/DB_Tools.git"
+  },
+  "dependencies": {
+    "electron-sparkle": "0.2.0"
   }
 }

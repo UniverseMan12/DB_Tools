@@ -22,20 +22,14 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-      - name: Apple-Zugang prüfen
+      - name: Kostenlosen Update-Schlüssel prüfen
         env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
-          for key in CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
-            if [ -z "${!key}" ]; then
-              echo "::error::Das Repository-Secret $key fehlt. Siehe ANLEITUNG.md."
-              exit 1
-            fi
-          done
+          if [ -z "$SPARKLE_PRIVATE_KEY" ]; then
+            echo "::error::Einmalig das Secret SPARKLE_PRIVATE_KEY einrichten. Kein Apple-Zertifikat erforderlich. Siehe ANLEITUNG.md."
+            exit 1
+          fi
       - run: npm ci
       - name: Electron-Laufzeit vorbereiten
         run: node node_modules/electron/install.js
@@ -43,20 +37,16 @@ jobs:
       - name: Version und Tag abgleichen
         run: node scripts/validate-release.cjs
       - run: npm run icons
-      - name: Signierte und notarisierte DMG erstellen
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      - name: Universelle DMG mit kostenloser Ad-hoc-Signatur erstellen
         run: npm run release
-      - name: Signatur und Notarisierung prüfen
+      - name: App und Sparkle-Integration prüfen
         run: |
-          codesign --verify --deep --strict --verbose=2 "dist/mac-universal/DB Tools.app"
-          xcrun stapler validate "dist/mac-universal/DB Tools.app"
-          spctl --assess --type execute --verbose=2 "dist/mac-universal/DB Tools.app"
-          test -f dist/latest-mac.yml
+          codesign --verify --deep --strict --verbose=2 "dist-free/mac-universal/DB Tools.app"
+          npx --no-install electron-sparkle doctor --app "dist-free/mac-universal/DB Tools.app"
+      - name: Update und Appcast mit eigenem Schlüssel signieren
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: npm run appcast
       - name: Release-Dateien hochladen und veröffentlichen
         env:
           GH_TOKEN: ${{ github.token }}

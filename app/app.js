@@ -11,7 +11,7 @@ function calculate(){
  $('error').textContent='';$('calculate').disabled=true;
  setTimeout(()=>{try{
  const W=Math.round(numeric($('rollW'),'Rollenbreite')*100),H=Math.round(numeric($('rollH'),'Rollenlänge')*10000);
- if(W>100000||H>1000000)throw Error('Version 1 unterstützt Rollen bis 1.000 cm Breite und 100 m Länge.');
+ if(W>100000||H>1000000)throw Error('DB Tools unterstützt Rollen bis 1.000 cm Breite und 100 m Länge.');
  const allowance=$('measure').value==='component'?Math.round(numeric($('allowance'),'Zugabe',true)*100):0;
  let parts=[];
  [...$('rows').children].forEach((tr,i)=>{const inputs=tr.querySelectorAll('input');if(!inputs[0].value.trim()&&!inputs[1].value&&!inputs[2].value)return;
@@ -22,7 +22,7 @@ function calculate(){
  });
  if(!parts.length)throw Error('Bitte mindestens eine vollständige Position erfassen.');
  const rotate=$('film').value==='uni';current={...Packing.optimize(parts,W,H,rotate),W,H,rotate};
- $('empty').hidden=true;$('results').hidden=false;$('status').textContent='✓ Plan geprüft';$('status').classList.remove('stale');render();
+ $('empty').hidden=true;$('results').hidden=false;$('status').textContent='✓ Plan geprüft';$('status').classList.remove('stale');render();document.dispatchEvent(new CustomEvent('dbtools:calculated'));
  }catch(e){$('error').textContent=e.message;$('results').hidden=true;$('empty').hidden=false;}finally{$('calculate').disabled=false;}},30);
 }
 function render(){
@@ -59,7 +59,7 @@ function draw(){
 
 const KEY='dbs-zuschnitt-v2',FIELDS=['rollW','rollH','film','measure','allowance'];
 function rowsData(){return [...$('rows').children].map(tr=>[...tr.querySelectorAll('input')].map(i=>i.value));}
-function save(){try{const s={rows:rowsData()};FIELDS.forEach(id=>s[id]=$(id).value);localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
+function save(){if(window.DBToolsPreferences&&window.DBToolsPreferences.autosave===false)return;try{const s={rows:rowsData()};FIELDS.forEach(id=>s[id]=$(id).value);localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
 function sync(){$('measure').onchange();$('film').onchange();}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(!s||!Array.isArray(s.rows)||!s.rows.length)return false;FIELDS.forEach(id=>{if(s[id]!==undefined)$(id).value=s[id];});$('rows').innerHTML='';s.rows.forEach(r=>addRow(r));sync();return true;}catch(e){return false;}}
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
@@ -73,4 +73,4 @@ $('csv').onclick=()=>{if(!current)return;const r=current,q=s=>'"'+String(s).repl
  download('zuschnittplan.csv','\ufeff'+L.join('\r\n'),'text/csv;charset=utf-8');};
 $('svg').onclick=()=>{const s=$('plan').innerHTML;if(s)download('zuschnittplan.svg',s,'image/svg+xml');};
 $('print').onclick=()=>window.print();
-if(!load())addRow();
+if(!load()){const p=window.DBToolsPreferences;if(p){$('rollW').value=p.defaultRollW;$('rollH').value=p.defaultRollH;$('allowance').value=p.defaultAllowance;$('film').value=p.defaultFilm;sync();}addRow();}

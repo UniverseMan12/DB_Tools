@@ -9,3 +9,8 @@ build/dmg-background.png
 *.key
 .env*
 !.env.example
+
+dist-free/
+qa-builds/
+*.private
+*.pem

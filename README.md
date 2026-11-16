@@ -1,16 +1,22 @@
-# DB Tools
+# DB Tools Studio
 
-Folien-Zuschnittplaner als macOS-App mit eigenem Logo, Willkommensbildschirm, nativen Menüs und Auto-Updater über [GitHub Releases](https://github.com/UniverseMan12/DB_Tools/releases).
+Animierter Folien-Zuschnittplaner für macOS mit Hell-, Dunkel- und Systemmodus, drei Akzentfarben, Projektdateien, Planungsstandards und kostenlosen Sparkle-Updates über [GitHub Releases](https://github.com/UniverseMan12/DB_Tools/releases).
 
-Die Anwendung berechnet lokal und funktioniert offline. Sie prüft Unifolie und Strukturfolie, zeigt Reststücke und exportiert CSV, SVG sowie Druck/PDF. Eingaben werden auf dem Mac gespeichert und bleiben bei Updates erhalten.
+![DB Tools Studio](docs/willkommen.jpg)
 
-## Installation
+Die Zuschnittberechnung läuft vollständig lokal. Projekte lassen sich als JSON sichern und öffnen; Pläne als CSV, SVG oder PDF ausgeben. Die Einstellungen umfassen Darstellung, Bewegung, Dichte, Startverhalten, Standardmasse, Autospeicherung und Updates.
 
-DMG öffnen und **DB Tools** in **Programme** ziehen. Anschliessend aus Programme starten. Der erste lokale Build ist noch nicht mit einer Apple Developer ID signiert und nicht notarisiert. Hinweise für den ersten Start und die signierte Veröffentlichung stehen in [ANLEITUNG.md](ANLEITUNG.md).
+**Kein Apple-Abonnement für Updates erforderlich.** Sparkle prüft Update-ZIP und Appcast mit dem öffentlichen Ed25519-Schlüssel der App. Die fertigen App-Bundles werden kostenlos ad hoc signiert. macOS kann beim ersten Start eine manuelle Freigabe verlangen; Apple-Notarisierung ist nicht Bestandteil dieser Verteilung.
 
-## Entwicklung und Build
+## Installieren und aktualisieren
 
-macOS und Node.js 24 verwenden:
+DMG öffnen, **DB Tools** in **Programme** ziehen und von dort starten. Die Umstellung von Version 1.0.0 erfordert einmalig den Austausch der App. Danach aktualisiert Sparkle weitere Versionen über `UniverseMan12/DB_Tools`. App-Name, App-ID und lokaler Speicherort bleiben gleich.
+
+Die ausführliche [Anleitung](ANLEITUNG.md) beschreibt Installation, Funktionen, den einmaligen GitHub-Secret-Schritt und spätere Veröffentlichungen. Der private Schlüssel gehört niemals ins Repository.
+
+## Entwicklung
+
+macOS und Node.js 24:
 
 ```sh
 npm ci
@@ -19,22 +25,20 @@ npm run icons
 npm start
 ```
 
-`npm test` prüft Berechnung und Einstellungen; `npm run smoke` prüft die tatsächliche Electron-Oberfläche, Speicherung und Exporte in einem temporären Profil. `npm run dist` erstellt eine lokale universelle DMG und ZIP. `npm run release` erfordert Apple-Signierung und Notarisierung. Alle Build-Dateien liegen unter `dist/`.
+`npm test` prüft Berechnung, Projektvalidierung, Einstellungen und Updater-Anbindung. `npm run smoke` prüft die tatsächliche Oberfläche mit einem isolierten Profil und erzeugt Ansichten unter `qa/`. `npm run dist` baut die universelle DMG und ZIP unter `dist-free/`.
 
-## Updates
+Für lokale Update-Signaturen: `SPARKLE_PRIVATE_KEY_FILE` setzen und `npm run appcast` ausführen. Für GitHub Actions einmal das Secret `SPARKLE_PRIVATE_KEY` mit dem separat gesicherten privaten Schlüssel anlegen. Anschliessend Versionsnummer erhöhen und einen passenden `v…`-Tag pushen oder den Workflow manuell starten. Der Workflow baut und signiert alles, lädt zuerst einen Release-Entwurf hoch und veröffentlicht ihn erst, wenn alle Dateien bereitliegen.
 
-Update-Quelle: **UniverseMan12/DB_Tools**. Die App prüft nach dem Start und danach alle vier Stunden auf stabile Releases. Eine neue Version wird automatisch geladen und beim Beenden installiert. In den Einstellungen kann die automatische Prüfung pausiert oder ein vorbereitetes Update sofort per Neustart installiert werden.
+Die Test-App unter `qa-builds/` hat eine eigene App-ID und einen eigenen Datenordner. Sie wird nicht veröffentlicht. Der echte Update-Wechsel zwischen zwei Testversionen und der Datenerhalt wurden geprüft.
 
-Voraussetzungen: einmalige Installation eines mit **Developer ID Application** signierten Builds und Einrichtung der fünf Apple-Secrets in GitHub. Danach Änderungen committen, Versionsnummer erhöhen und einen passenden `v…`-Tag pushen. Der Workflow baut, signiert, notarisiert und veröffentlicht DMG, ZIP, Blockmaps und `latest-mac.yml`. Kein GitHub-Token wird in die App eingebaut. Die erste lokale, unsignierte DMG wird nicht als automatisches Update veröffentlicht.
+## Aufbau
 
-Die vollständige Anleitung mit Apple-Zertifikat, GitHub-Einrichtung und Veröffentlichung steht in [ANLEITUNG.md](ANLEITUNG.md).
+- `app/index.html`, `app/studio.css`, `app/studio.js`: Oberfläche und Interaktionen.
+- `app/preferences.js`: Theme-Start, Einstellungen und Projektvalidierung.
+- `app/app.js`, `app/packing.js`: Zuschnittberechnung und Ausgaben.
+- `electron/updates.cjs`: Sparkle-Anbindung ohne Apple-Developer-ID-Voraussetzung.
+- `electron/update-config.json`: öffentlicher Schlüssel und GitHub-Feed.
+- `scripts/build.cjs`, `scripts/appcast.cjs`: universeller Build und Signaturen.
+- `.github/workflows/release.yml`: kostenlose Veröffentlichung im öffentlichen GitHub-Repository.
 
-## Projektdateien
-
-- `app/`: HTML, Gestaltung, Logo und Zuschnittberechnung.
-- `electron/`: sicherer Desktop-Rahmen, macOS-Menüs und Updater.
-- `build/`: macOS-Icon, Installationshintergrund und Berechtigungen.
-- `.github/workflows/release.yml`: signierte Veröffentlichung über GitHub Actions.
-- `scripts/`: Build, Icon-Erzeugung und Release-Prüfung.
-
-Die ursprünglichen HTML-Dateien auf dem Desktop bleiben erhalten. Bisher im Browser gespeicherte Eingaben werden nicht automatisch in die neue App übernommen.
+Maximal 200 Zuschnitte; heuristische Optimierung, kein garantiertes mathematisches Optimum. Masse vor dem Schneiden prüfen.
