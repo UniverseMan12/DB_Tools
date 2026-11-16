@@ -12,11 +12,11 @@
 
 Die Datei `DB-Tools-1.2.0-beta.1-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
 
-Die Beta wird bewusst nicht automatisch an Nutzer der stabilen Version verteilt. Der bestehende signierte Updater bleibt aktiv und bezieht künftige stabile Releases über GitHub. Weitere Betas werden als GitHub-Vorabversion bereitgestellt und manuell installiert. Sobald 1.2.0 stabil veröffentlicht wird, kann die Beta darauf automatisch aktualisieren.
+Die Beta wird auf Wunsch über den normalen signierten Update-Kanal verteilt. In DB Tools unter Einstellungen → Updates → Nach Updates suchen aktualisieren. Bei aktivierten automatischen Updates prüft die App im Hintergrund. Die App bleibt als Beta gekennzeichnet; das GitHub-Release wird als Latest veröffentlicht, damit der bestehende Feed es findet. Nutzer von Version 1.0.0 ohne Sparkle müssen einmal über die DMG aktualisieren.
 
 ## Veröffentlichen
 
-Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.2. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie als **Pre-release**, ohne das stabile Latest-Release zu ersetzen. Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
+Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.2. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie bewusst als **Latest** im normalen Update-Kanal (nicht als GitHub-Pre-release). Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
 
 ---
 

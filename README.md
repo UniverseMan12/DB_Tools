@@ -2,7 +2,7 @@
 
 Einfacher Zuschnittplaner für macOS mit Schwarz-Weiss-Oberfläche, Vollbildansicht und frei einstellbarer Zugabe pro Seite. Hell-, Dunkel- und Systemmodus bleiben verfügbar. Kein Feedback-Hub.
 
-Beta-Releases sind GitHub-Vorabversionen und ersetzen das stabile Latest-Release nicht. Die Beta wird einmal manuell installiert; der Sparkle-Updater empfängt weiterhin künftige stabile Versionen.
+Die Beta wird bewusst als GitHub-Latest-Release im normalen signierten Sparkle-Update-Kanal verteilt. Die App ist weiterhin als Beta gekennzeichnet.
 
 Siehe [Anleitung](ANLEITUNG.md).
 
