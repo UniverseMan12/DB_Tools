@@ -25,7 +25,7 @@ function audit(event) {
 function check() { return updates.check(); }
 function menuAction(name) { win?.webContents.send('app:menu', name); }
 function createWindow() {
-  win = new BrowserWindow({ width: 1440, height: 980, minWidth: 900, minHeight: 680, show: false, title: 'DB Tools', backgroundColor: '#f4f5f1', titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 20, y: 18 }, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, backgroundThrottling: !smoke, offscreen: smoke } });
+  win = new BrowserWindow({ width: 1440, height: 980, minWidth: 900, minHeight: 680, show: false, title: 'DB Tools', backgroundColor: '#f5f5f5', titleBarStyle: 'hiddenInset', trafficLightPosition: { x: 20, y: 18 }, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), nodeIntegration: false, contextIsolation: true, sandbox: true, webSecurity: true, backgroundThrottling: !smoke, offscreen: smoke } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   if (smoke) {
     win.webContents.on('console-message', event => console.log('RENDERER:', event.level, event.message));
@@ -33,6 +33,7 @@ function createWindow() {
   }
   win.webContents.on('will-navigate', e => e.preventDefault());
   win.once('ready-to-show', () => { if (!smoke) win.show(); });
+  win.on('leave-full-screen',()=>win?.webContents.send('app:fullscreen',false));
   win.on('closed', () => { win = null; });
   win.loadFile(entry);
   return win;
@@ -54,6 +55,7 @@ app.whenReady().then(async () => {
     'app:info': () => ({ version: app.getVersion(), updater: 'sparkle', packaged: app.isPackaged }),
     'settings:get': () => ({ ...settings, state: updates.getState() }),
     'settings:save': (_, value) => { settings = writeSettings(settingsFile(), value); updates.setAutomatic(settings.automatic); return settings; },
+    'window:plan-fullscreen': (_, value) => { if(typeof value!=='boolean')throw Error('Ungültiger Vollbildmodus.');const previous=win.isFullScreen();win.setFullScreen(value);return previous; },
     'updates:check': check,
     'updates:install': () => updates.showInstall()
   })) ipcMain.handle(channel, (event, ...args) => { trusted(event); return handler(event, ...args); });

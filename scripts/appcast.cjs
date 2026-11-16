@@ -21,7 +21,7 @@ try {
   const key = crypto.createPrivateKey({key:Buffer.concat([Buffer.from('302e020100300506032b657004220420','hex'),seed]),format:'der',type:'pkcs8'});
   const publicValue = Buffer.from(crypto.createPublicKey(key).export({format:'jwk'}).x,'base64url').toString('base64');
   if (publicValue !== publicEdKey) throw Error('Privater Schlüssel passt nicht zur installierten App. Keinen neuen Schlüssel erzeugen.');
-  const feedDir=path.join(directory,'feed');fs.mkdirSync(feedDir,{recursive:true});
+  const feedDir=path.join(directory,'feed-'+version);fs.mkdirSync(feedDir,{recursive:true});
   const archive='DB-Tools-'+version+'-universal.zip';
   fs.copyFileSync(path.join(directory,archive),path.join(feedDir,archive));
   const cli=path.join(path.dirname(require.resolve('electron-sparkle/package.json')),'dist/cli.js');

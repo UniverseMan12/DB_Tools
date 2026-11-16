@@ -13,6 +13,7 @@ function calculate(){
  const W=Math.round(numeric($('rollW'),'Rollenbreite')*100),H=Math.round(numeric($('rollH'),'Rollenlänge')*10000);
  if(W>100000||H>1000000)throw Error('DB Tools unterstützt Rollen bis 1.000 cm Breite und 100 m Länge.');
  const allowance=$('measure').value==='component'?Math.round(numeric($('allowance'),'Zugabe',true)*100):0;
+ if(allowance>10000)throw Error('Die Zugabe darf höchstens 100 cm pro Seite betragen.');
  let parts=[];
  [...$('rows').children].forEach((tr,i)=>{const inputs=tr.querySelectorAll('input');if(!inputs[0].value.trim()&&!inputs[1].value&&!inputs[2].value)return;
  if(!inputs[0].value.trim())throw Error('Position '+(i+1)+': Bitte eine Bezeichnung eingeben.');
@@ -54,12 +55,13 @@ function draw(){
 }
  $('add').onclick=()=>{addRow();$('rows').lastElementChild.querySelector('input').focus();};$('calculate').onclick=calculate;$('zoom').oninput=draw;
  for(const id of ['rollW','rollH','film','measure','allowance'])$(id).addEventListener('input',()=>{stale();save();});
- $('measure').onchange=()=>{$('allowanceWrap').hidden=$('measure').value!=='component';};
+ $('measure').onchange=()=>{$('allowanceWrap').hidden=$('measure').value!=='component';allowancePreview();};
  $('film').onchange=()=>{$('direction').textContent=$('film').value==='uni'?'Unifolie: Teile dürfen zur Materialersparnis um 90° gedreht werden.':'Strukturfolie: Die eingegebene Länge folgt der Struktur (↓). Teile werden nicht gedreht.';};
 
 const KEY='dbs-zuschnitt-v2',FIELDS=['rollW','rollH','film','measure','allowance'];
 function rowsData(){return [...$('rows').children].map(tr=>[...tr.querySelectorAll('input')].map(i=>i.value));}
-function save(){if(window.DBToolsPreferences&&window.DBToolsPreferences.autosave===false)return;try{const s={rows:rowsData()};FIELDS.forEach(id=>s[id]=$(id).value);localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
+function allowancePreview(){const a=Number($('allowance').value);const row=$('rows').querySelector('tr');const inputs=row?.querySelectorAll('input');const w=Number(inputs?.[1].value),h=Number(inputs?.[2].value);$('allowance-preview').textContent=Number.isFinite(a)&&a>=0&&a<=100?(w>0&&h>0?fmt(w)+' × '+fmt(h)+' cm → '+fmt(w+2*a)+' × '+fmt(h+2*a)+' cm':'Zuschnitt = eingegebenes Mass + '+fmt(2*a)+' cm je Richtung'):'Bitte 0 bis 100 cm eingeben.';}
+function save(){allowancePreview();if(window.DBToolsPreferences&&window.DBToolsPreferences.autosave===false)return;try{const s={rows:rowsData()};FIELDS.forEach(id=>s[id]=$(id).value);localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
 function sync(){$('measure').onchange();$('film').onchange();}
 function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(!s||!Array.isArray(s.rows)||!s.rows.length)return false;FIELDS.forEach(id=>{if(s[id]!==undefined)$(id).value=s[id];});$('rows').innerHTML='';s.rows.forEach(r=>addRow(r));sync();return true;}catch(e){return false;}}
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}

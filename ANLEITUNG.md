@@ -1,3 +1,29 @@
+# DB Tools 1.2.0 Beta 1
+
+## Neuerungen
+
+- Schwarz-weisse App-Oberfläche mit Hell-, Dunkel- und Systemmodus; der Zuschnittplan bleibt farbig. Logo und Einführung sind neutral.
+- Ein Arbeitsbereich ohne seitliche Werkzeugleiste. Reststücke und Teilelisten lassen sich bei Bedarf aufklappen.
+- Im berechneten Zuschnittplan auf **Vollbild** klicken. **Einpassen** und der Zoomregler vergrössern die Ansicht; **Esc** führt zurück.
+- Unter **Zuschnitte → Zugabe berechnen** die Option **Zugabe pro Seite hinzufügen** wählen. Den gewünschten Wert in cm selbst eingeben. Beispiel: 60 × 72 cm mit 2,5 cm Zugabe pro Seite ergibt 65 × 77 cm. Bei „Ohne Zugabe“ werden die eingegebenen Masse unverändert verwendet.
+- Die App ist als Beta gekennzeichnet. Kein Feedback-Hub enthalten.
+
+## Installation der Beta
+
+Die Datei `DB-Tools-1.2.0-beta.1-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
+
+Die Beta wird bewusst nicht automatisch an Nutzer der stabilen Version verteilt. Der bestehende signierte Updater bleibt aktiv und bezieht künftige stabile Releases über GitHub. Weitere Betas werden als GitHub-Vorabversion bereitgestellt und manuell installiert. Sobald 1.2.0 stabil veröffentlicht wird, kann die Beta darauf automatisch aktualisieren.
+
+## Veröffentlichen
+
+Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.2. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie als **Pre-release**, ohne das stabile Latest-Release zu ersetzen. Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
+
+---
+
+## Weitere Bedienung und Update-Einrichtung
+
+Die folgende Anleitung zur früheren Studio-Version beschreibt die weiterhin vorhandenen Projekt- und Updatefunktionen. Die frühere Akzentfarbauswahl wurde durch Schwarz/Weiss ersetzt.
+
 # DB Tools Studio · Version 1.1.0
 
 ## Installieren

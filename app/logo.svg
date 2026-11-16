@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
-<defs><linearGradient id="bg" x2=".9" y2="1"><stop stop-color="#23584c"/><stop offset="1" stop-color="#0b302c"/></linearGradient><linearGradient id="tile" x2="0" y2="1"><stop stop-color="#f6f3de"/><stop offset="1" stop-color="#d9e8c5"/></linearGradient></defs>
+<defs><linearGradient id="bg" x2=".9" y2="1"><stop stop-color="#4c4c4c"/><stop offset="1" stop-color="#282828"/></linearGradient><linearGradient id="tile" x2="0" y2="1"><stop stop-color="#f2f2f2"/><stop offset="1" stop-color="#e2e2e2"/></linearGradient></defs>
 <rect x="56" y="56" width="912" height="912" rx="216" fill="url(#bg)"/>
 <rect x="57" y="57" width="910" height="910" rx="215" fill="none" stroke="#ffffff" stroke-opacity=".13" stroke-width="3"/>
-<g fill="none" stroke="#97b9a1" stroke-width="7" stroke-linecap="round" opacity=".6"><path d="M253 191v25m86-25v14m86-14v25m86-25v14m86-14v25m86-25v14m86-14v25"/><path d="M191 253h25m-25 86h14m-14 86h25m-25 86h14m-14 86h25m-25 86h14m-14 86h25"/></g>
+<g fill="none" stroke="#b0b0b0" stroke-width="7" stroke-linecap="round" opacity=".6"><path d="M253 191v25m86-25v14m86-14v25m86-25v14m86-14v25m86-25v14m86-14v25"/><path d="M191 253h25m-25 86h14m-14 86h25m-25 86h14m-14 86h25m-25 86h14m-14 86h25"/></g>
 <path d="M273 300h95c103 0 152 73 152 210s-49 210-152 210h-95z" fill="url(#tile)"/>
-<path d="M346 375h23c51 0 76 39 76 135s-25 135-76 135h-23z" fill="#19483e"/>
-<path d="M555 300h109c87 0 132 41 132 104 0 50-25 81-59 94 42 12 70 45 70 103 0 76-50 119-143 119H555z" fill="#d5e3bb"/>
-<path d="M628 370h35c39 0 57 16 57 46s-18 46-57 46h-35zm0 163h40c43 0 63 17 63 54s-20 55-63 55h-40z" fill="#19483e"/>
-<path d="M555 497h237" stroke="#19483e" stroke-width="12"/>
-<path d="M757 682h50v38h-50z" fill="#dbb987"/>
-<path d="M286 794h449" stroke="#80a390" stroke-width="5" stroke-dasharray="12 16"/>
+<path d="M346 375h23c51 0 76 39 76 135s-25 135-76 135h-23z" fill="#3d3d3d"/>
+<path d="M555 300h109c87 0 132 41 132 104 0 50-25 81-59 94 42 12 70 45 70 103 0 76-50 119-143 119H555z" fill="#dddddd"/>
+<path d="M628 370h35c39 0 57 16 57 46s-18 46-57 46h-35zm0 163h40c43 0 63 17 63 54s-20 55-63 55h-40z" fill="#3d3d3d"/>
+<path d="M555 497h237" stroke="#3d3d3d" stroke-width="12"/>
+<path d="M757 682h50v38h-50z" fill="#bdbdbd"/>
+<path d="M286 794h449" stroke="#9a9a9a" stroke-width="5" stroke-dasharray="12 16"/>
 </svg>

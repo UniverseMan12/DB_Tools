@@ -1,10 +1,10 @@
 (function(root) {
   'use strict';
   const KEY = 'db-tools-preferences-v2';
-  const defaults = { theme:'system', accent:'lime', density:'comfortable', motion:true, autosave:true, launchWelcome:false, defaultRollW:122, defaultRollH:50, defaultAllowance:2, defaultFilm:'uni' };
+  const defaults = { theme:'system', accent:'mono', density:'comfortable', motion:true, autosave:true, launchWelcome:false, defaultRollW:122, defaultRollH:50, defaultAllowance:2, defaultFilm:'uni' };
   function clean(value = {}) {
     const p = { ...defaults };
-    for (const [key, options] of Object.entries({theme:['system','dark','light'],accent:['lime','teal','amber'],density:['comfortable','compact'],defaultFilm:['uni','structure']})) if(options.includes(value[key])) p[key]=value[key];
+    for (const [key, options] of Object.entries({theme:['system','dark','light'],accent:['mono'],density:['comfortable','compact'],defaultFilm:['uni','structure']})) if(options.includes(value[key])) p[key]=value[key];
     for(const key of ['motion','autosave','launchWelcome']) if(typeof value[key]==='boolean') p[key]=value[key];
     for(const [key,min,max] of [['defaultRollW',0.01,1000],['defaultRollH',0.01,100],['defaultAllowance',0,100]]) if(Number.isFinite(Number(value[key]))&&Number(value[key])>=min&&Number(value[key])<=max) p[key]=Math.round(Number(value[key])*100)/100;
     return p;

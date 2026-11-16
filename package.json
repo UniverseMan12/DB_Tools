@@ -1,7 +1,7 @@
 {
   "name": "db-tools",
-  "version": "1.1.0",
-  "description": "DB Tools – Folien-Zuschnittplaner für macOS",
+  "version": "1.2.0-beta.1",
+  "description": "DB Tools \u2013 Folien-Zuschnittplaner f\u00fcr macOS",
   "author": "DB SOLUTION",
   "private": true,
   "main": "electron/main.cjs",

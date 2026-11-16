@@ -9,4 +9,4 @@ if (existing.status !== 0) gh(['release', 'create', tag, '--target', process.env
 const files = ['DB-Tools-'+version+'-universal.dmg','DB-Tools-'+version+'-universal.zip','appcast.xml'];
 if (!files.every(f=>fs.existsSync('dist-free/'+f))) throw Error('DMG, ZIP oder signierter Appcast fehlen.');
 gh(['release', 'upload', tag, ...files.map(f=>'dist-free/'+f), '--clobber']);
-gh(['release', 'edit', tag, '--draft=false', '--latest']);
+gh(['release', 'edit', tag, '--draft=false', ...(version.includes('-beta.') ? ['--prerelease', '--latest=false'] : ['--latest'])]);

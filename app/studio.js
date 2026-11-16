@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(desktop){
     desktop.onUpdate(updateStatus);
     desktop.onMenu(action=>{if(action==='welcome')showWelcome();else if(action==='updates')showSettings('updates');else if(action==='settings')showSettings();else if(action==='export')exportProject();else if(action==='import')chooseProject();});
-    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent='Version '+info.version);el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
+    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent=info.version.replace('-beta.',' · Beta '));el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
   } else {el('check-updates').disabled=true;el('signing-note').textContent='Updates sind in der macOS-App verfügbar.';}
   const slides=[
     ['Gross denken.<br><em>Präzise</em><br>zuschneiden.','Aus Material wird Möglichkeit. Ihr Studio für durchdachte Zuschnitte – vom ersten Mass bis zum letzten Zentimeter.','Jede Rolle hat Potenzial.','Sie geben die Masse vor. DB Tools bringt Ordnung hinein.'],
@@ -104,6 +104,15 @@ document.addEventListener('DOMContentLoaded', () => {
   all('[data-command]').forEach(button=>button.onclick=()=>{commands.close();actions[button.dataset.command]();});
   document.addEventListener('keydown',event=>{if(!(event.metaKey||event.ctrlKey)||event.altKey)return;const key=event.key.toLowerCase();const action=key==='k'?showCommands:key==='s'?exportProject:key==='o'?chooseProject:key===','?()=>showSettings():key==='enter'?actions.calculate:null;if(action){event.preventDefault();action();}});
   document.addEventListener('dbtools:calculated',()=>{if(prefs.motion&&!motionQuery.matches)document.querySelector('.result-head').animate([{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'translateY(0)'}],{duration:350});toast('Zuschnitt geprüft. Ihr Plan ist bereit.');});
+  const planView=el('plan-view'), plan=el('plan'), planHome=plan.parentNode, planNext=plan.nextSibling;
+  let wasFullscreen=false, enteringPlan=false;
+  function resizePlan(value){el('zoom').value=value;el('zoom').dispatchEvent(new Event('input'));el('fullscreen-zoom').value=el('zoom').value;el('fullscreen-zoom-value').textContent=el('zoom').value+' %';}
+  function fitPlan(){resizePlan(100);const svg=plan.querySelector('svg');if(svg){const scale=Math.min((plan.clientWidth-32)/Number(svg.getAttribute('width')),(plan.clientHeight-32)/Number(svg.getAttribute('height')));resizePlan(Math.max(25,Math.min(250,Math.floor(scale*100))));}}
+  el('plan-fullscreen').onclick=async()=>{if(!plan.querySelector('svg')||enteringPlan)return;enteringPlan=true;try{wasFullscreen=desktop?await desktop.planFullscreen(true):false;el('fullscreen-plan-host').append(plan);el('fullscreen-summary').textContent=el('stats').querySelector('strong')?.textContent+' Folie';planView.showModal();setTimeout(fitPlan,400);}catch{toast('Vollbild konnte nicht geöffnet werden.');}finally{enteringPlan=false;}};
+  el('close-plan-view').onclick=()=>planView.close();
+  planView.addEventListener('close',()=>{planHome.insertBefore(plan,planNext);resizePlan(100);desktop?.planFullscreen(wasFullscreen);el('plan-fullscreen').focus();});
+  desktop?.onFullscreen(value=>{if(!value&&planView.open)planView.close();});
+  el('fit-plan').onclick=fitPlan;el('fullscreen-zoom').oninput=()=>resizePlan(el('fullscreen-zoom').value);
   applyPrefs(false);
   if(!localStorage.getItem('dbs-zuschnitt-v2')){el('rollW').value=prefs.defaultRollW;el('rollH').value=prefs.defaultRollH;el('allowance').value=prefs.defaultAllowance;el('film').value=prefs.defaultFilm;sync();}
   if(!localStorage.getItem('db-tools-welcome-studio-v1')||prefs.launchWelcome)showWelcome();

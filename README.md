@@ -1,3 +1,13 @@
+# DB Tools · 1.2.0 Beta 1
+
+Einfacher Zuschnittplaner für macOS mit Schwarz-Weiss-Oberfläche, Vollbildansicht und frei einstellbarer Zugabe pro Seite. Hell-, Dunkel- und Systemmodus bleiben verfügbar. Kein Feedback-Hub.
+
+Beta-Releases sind GitHub-Vorabversionen und ersetzen das stabile Latest-Release nicht. Die Beta wird einmal manuell installiert; der Sparkle-Updater empfängt weiterhin künftige stabile Versionen.
+
+Siehe [Anleitung](ANLEITUNG.md).
+
+---
+
 # DB Tools Studio
 
 Animierter Folien-Zuschnittplaner für macOS mit Hell-, Dunkel- und Systemmodus, drei Akzentfarben, Projektdateien, Planungsstandards und kostenlosen Sparkle-Updates über [GitHub Releases](https://github.com/UniverseMan12/DB_Tools/releases).
