@@ -84,8 +84,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/UniverseMan12/DB_Tools.git"
-  },
-  "overrides": {
-    "minimatch": "^11.0.1"
   }
 }
