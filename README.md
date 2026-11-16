@@ -1,4 +1,6 @@
-# DB Tools · 1.2.0 Beta 2
+# DB Tools · 1.2.0 Beta 3
+
+Beta 3 korrigiert die Update-Erkennung: Sichtbare Version und numerische Buildnummer sind getrennt. Beta 3 verwendet intern `1.2.3`, Beta 4 `1.2.4`, die stabile Version 1.2.0 verwendet `1.2.999`. Die Buildnummer wird beim Packen automatisch erzeugt.
 
 Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
 

@@ -5,6 +5,7 @@ const { electronSparkle } = require('electron-sparkle/electron-builder');
 const path = require('node:path');
 const asar = require('@electron/asar');
 const config = require('../electron/update-config.json');
+const { macBuildVersion } = require('./version.cjs');
 const staging = process.argv.includes('--staging');
 const dirOnly = process.argv.includes('--dir');
 const output = staging ? process.env.DB_TOOLS_QA_OUT || 'qa-builds/staging' : 'dist-free';
@@ -13,6 +14,7 @@ const name = staging ? 'DB Tools Update-Test' : 'DB Tools';
   if (!/^[A-Za-z0-9+/]{43}=$/.test(config.publicEdKey)) throw Error('Gültiger öffentlicher Update-Schlüssel fehlt.');
   await build({ targets: Platform.MAC.createTarget(dirOnly ? ['dir'] : staging ? ['zip'] : ['dmg', 'zip'], staging ? Arch.arm64 : Arch.universal), publish: 'never', config: {
     productName: name,
+    buildVersion: macBuildVersion(staging ? process.env.DB_TOOLS_QA_VERSION || '1.1.0' : require('../package.json').version),
     appId: staging ? 'ch.dbsolution.dbtools.updatetest' : 'ch.dbsolution.dbtools',
     directories: { output }, forceCodeSigning: false,
     ...(staging ? { extraMetadata: { version: process.env.DB_TOOLS_QA_VERSION || '1.1.0', dbToolsUpdateTest: true } } : {}),

@@ -1,4 +1,6 @@
-# DB Tools 1.2.0 Beta 2
+# DB Tools 1.2.0 Beta 3
+
+Beta 3 korrigiert die Update-Erkennung: Sichtbare Version und numerische Buildnummer sind getrennt. Beta 3 verwendet intern `1.2.3`, Beta 4 `1.2.4`, die stabile Version 1.2.0 verwendet `1.2.999`. Die Buildnummer wird beim Packen automatisch erzeugt.
 
 Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
 
@@ -12,13 +14,13 @@ Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinand
 
 ## Installation der Beta
 
-Die Datei `DB-Tools-1.2.0-beta.2-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
+Die Datei `DB-Tools-1.2.0-beta.3-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
 
 Die Beta wird auf Wunsch über den normalen signierten Update-Kanal verteilt. In DB Tools unter Einstellungen → Updates → Nach Updates suchen aktualisieren. Bei aktivierten automatischen Updates prüft die App im Hintergrund. Die App bleibt als Beta gekennzeichnet; das GitHub-Release wird als Latest veröffentlicht, damit der bestehende Feed es findet. Nutzer von Version 1.0.0 ohne Sparkle müssen einmal über die DMG aktualisieren.
 
 ## Veröffentlichen
 
-Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.2. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie bewusst als **Latest** im normalen Update-Kanal (nicht als GitHub-Pre-release). Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
+Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.3. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie bewusst als **Latest** im normalen Update-Kanal (nicht als GitHub-Pre-release). Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
 
 ---
 
