@@ -4,6 +4,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Release veröffentlichen (aus = nur Build und Signaturen prüfen)'
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -48,6 +53,7 @@ jobs:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: npm run appcast
       - name: Release-Dateien hochladen und veröffentlichen
+        if: github.event_name != 'workflow_dispatch' || inputs.publish
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
