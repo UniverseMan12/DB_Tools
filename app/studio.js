@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     root.dataset.accent=prefs.accent;root.dataset.density=prefs.density;
     root.dataset.motion=prefs.motion&&!motionQuery.matches?'full':'reduced';
     el('pref-motion').checked=prefs.motion;el('pref-compact').checked=prefs.density==='compact';el('pref-welcome').checked=prefs.launchWelcome;el('pref-autosave').checked=prefs.autosave;
-    el('pref-roll-w').value=prefs.defaultRollW;el('pref-roll-h').value=prefs.defaultRollH;el('pref-allowance').value=prefs.defaultAllowance;el('pref-film').value=prefs.defaultFilm;el('pref-gap').value=prefs.defaultGap;el('pref-price').value=prefs.defaultPrice;
+    el('pref-roll-w').value=prefs.defaultRollW;el('pref-roll-h').value=prefs.defaultRollH;el('pref-allowance').value=prefs.rowAllowance;el('pref-film').value=prefs.defaultFilm;el('pref-gap').value=prefs.defaultGap;el('pref-price').value=prefs.defaultPrice;
     all('[data-theme-option]').forEach(button=>{const selected=button.dataset.themeOption===prefs.theme;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});
     all('button[data-accent]').forEach(button=>{const selected=button.dataset.accent===prefs.accent;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});
     el('save-state').textContent=prefs.autosave?'Lokal gespeichert':'Automatisches Speichern pausiert';
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   el('theme-toggle').onclick=toggleTheme;
   for(const [id,key] of [['pref-motion','motion'],['pref-welcome','launchWelcome'],['pref-autosave','autosave']])el(id).onchange=()=>{prefs[key]=el(id).checked;applyPrefs();if(key==='autosave'&&prefs.autosave)save();};
   el('pref-compact').onchange=()=>{prefs.density=el('pref-compact').checked?'compact':'comfortable';applyPrefs();};
-  for(const [id,key] of [['pref-roll-w','defaultRollW'],['pref-roll-h','defaultRollH'],['pref-allowance','defaultAllowance'],['pref-gap','defaultGap'],['pref-price','defaultPrice']])el(id).onchange=()=>{if(!el(id).checkValidity()||!el(id).value.trim()){el(id).reportValidity();return;}prefs[key]=Number(el(id).value);applyPrefs();};
+  for(const [id,key] of [['pref-roll-w','defaultRollW'],['pref-roll-h','defaultRollH'],['pref-allowance','rowAllowance'],['pref-gap','defaultGap'],['pref-price','defaultPrice']])el(id).onchange=()=>{if(!el(id).checkValidity()||!el(id).value.trim()){el(id).reportValidity();return;}prefs[key]=Number(el(id).value);applyPrefs();};
   el('pref-film').onchange=()=>{prefs.defaultFilm=el('pref-film').value;applyPrefs();};
   function selectTab(tab) {
     all('[data-tab]').forEach(button=>{const active=button.dataset.tab===tab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(desktop){
     desktop.onUpdate(updateStatus);
     desktop.onMenu(action=>{if(action==='welcome')showWelcome();else if(action==='updates')showSettings('updates');else if(action==='settings')showSettings();else if(action==='export')exportProject();else if(action==='import')chooseProject();else if(actions[action])actions[action]();});
-    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent=info.version.replace('-beta.',' · Beta '));if(info.packaged)setTimeout(()=>whatsNew(info.version),600);el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
+    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent=info.version.replace('-beta.',' Beta '));if(info.packaged)setTimeout(()=>whatsNew(info.version),600);el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
   } else {el('check-updates').disabled=true;el('signing-note').textContent='Updates sind in der macOS-App verfügbar.';}
   const slides=[
     ['Gross denken.<br><em>Präzise</em><br>zuschneiden.','Aus Material wird Möglichkeit. Ihr Studio für durchdachte Zuschnitte – vom ersten Mass bis zum letzten Zentimeter.','Jede Rolle hat Potenzial.','Sie geben die Masse vor. DB Tools bringt Ordnung hinein.'],
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function snapshot(){const planner={rows:rowsData()};FIELDS.forEach(id=>planner[id]=el(id).value);return {format:'db-tools-project',version:1,createdAt:new Date().toISOString(),planner,preferences:prefs};}
   function exportProject(){const data=snapshot();download(fileBase()+'.dbtools.json',JSON.stringify(data,null,2),'application/json');toast('Projektdatei wird gespeichert.');}
   function chooseProject(){el('project-file').value='';el('project-file').click();}
-  function applyPlanner(planner){FIELDS.forEach(id=>{el(id).value=planner[id]??'';});el('rows').innerHTML='';(planner.rows.length?planner.rows:[['','','','1']]).forEach(row=>addRow(row));sync();stale();save();}
+  function applyPlanner(planner){FIELDS.forEach(id=>{el(id).value=planner[id]??'';});el('rows').innerHTML='';(planner.rows.length?planner.rows:[['','','','1']]).forEach(row=>addRow(migrateRow(row,planner),null,true));sync();stale();save();}
   el('project-file').onchange=async()=>{
     const file=el('project-file').files[0];if(!file)return;
     try{if(file.size>1024*1024)throw Error('Die Projektdatei ist zu gross.');const data=api.project(JSON.parse(await file.text()));
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(hasContent()&&!isSaved()&&currentProject!==id)confirmAction('Ihre aktuelle Planung ist nicht gespeichert und wird ersetzt. Speichern Sie sie zuerst mit „Aktuelle Planung speichern“, wenn Sie sie behalten möchten.',go,'Trotzdem öffnen');else go();
   }
   function showLibrary(){commands.close();settings.close();el('library-search').value='';renderLibrary();if(!library.open)library.showModal();}
-  function newPlanning(){applyPlanner({rollW:String(prefs.defaultRollW),rollH:String(prefs.defaultRollH),film:prefs.defaultFilm,allowance:String(prefs.defaultAllowance),gap:prefs.defaultGap?String(prefs.defaultGap):'',price:prefs.defaultPrice?String(prefs.defaultPrice):'',projectName:'',measure:'finished',rows:[]});setCurrentProject(null);current=null;el('results').hidden=true;el('empty').hidden=false;el('empty').querySelector('h2').textContent='Ihr Zuschnittplan';el('empty').querySelector('p').textContent='Erfassen Sie links Ihre Teile und starten Sie die Berechnung.';el('status').classList.remove('stale');document.querySelector('#rows input')?.focus();}
+  function newPlanning(){applyPlanner({rollW:String(prefs.defaultRollW),rollH:String(prefs.defaultRollH),film:prefs.defaultFilm,gap:prefs.defaultGap?String(prefs.defaultGap):'',price:prefs.defaultPrice?String(prefs.defaultPrice):'',projectName:'',rows:[]});setCurrentProject(null);current=null;el('results').hidden=true;el('empty').hidden=false;el('empty').querySelector('h2').textContent='Ihr Zuschnittplan';el('empty').querySelector('p').textContent='Erfassen Sie links Ihre Teile und starten Sie die Berechnung.';el('status').classList.remove('stale');document.querySelector('#rows input')?.focus();}
   function askNewPlanning(){commands.close();library.close();if(!hasContent()||isSaved()){newPlanning();return;}confirmAction('Die laufenden Eingaben werden durch eine leere Planung mit Ihren Standardwerten ersetzt. Nicht gespeicherte Eingaben gehen verloren – „Rückgängig“ ist danach kurz möglich.',()=>{const before=plannerState(),id=currentProject;newPlanning();window.showToast('Neue Planung begonnen.','Rückgängig',()=>{applyPlanner(before);setCurrentProject(id);});},'Neue Planung');}
   el('rail-project').onclick=showLibrary;el('open-library').onclick=showLibrary;el('rail-new').onclick=askNewPlanning;
   el('save-library').onclick=saveToLibrary;el('library-save').onclick=saveToLibrary;el('library-new').onclick=askNewPlanning;
@@ -192,10 +192,10 @@ document.addEventListener('DOMContentLoaded', () => {
   el('library-search').oninput=renderLibrary;
   for(const d of [library,settings,commands,el('whats-new'),el('confirm-dialog')])d.addEventListener('click',e=>{if(e.target===d)d.close();});
   /* ---------- What's new after an update ---------- */
-  function whatsNew(version){let last=null;try{last=localStorage.getItem('db-tools-last-version');localStorage.setItem('db-tools-last-version',version);}catch{}if(last&&last!==version&&!welcome.open)el('whats-new').showModal();}
+  function whatsNew(version){let last=null,existing=false;try{last=localStorage.getItem('db-tools-last-version');existing=!!(localStorage.getItem('dbs-zuschnitt-v2')||localStorage.getItem('db-tools-welcome-studio-v1'));localStorage.setItem('db-tools-last-version',version);}catch{}/* Versions before 1.3 did not record themselves: an existing profile means this is an update. */if((last?last!==version:existing)&&!welcome.open)el('whats-new').showModal();}
   el('whats-new-close').onclick=()=>el('whats-new').close();
   applyPrefs(false);
-  if(!localStorage.getItem('dbs-zuschnitt-v2')){el('rollW').value=prefs.defaultRollW;el('rollH').value=prefs.defaultRollH;el('allowance').value=prefs.defaultAllowance;el('film').value=prefs.defaultFilm;el('gap').value=prefs.defaultGap||'';el('price').value=prefs.defaultPrice||'';sync();}
+  if(!localStorage.getItem('dbs-zuschnitt-v2')){el('rollW').value=prefs.defaultRollW;el('rollH').value=prefs.defaultRollH;el('film').value=prefs.defaultFilm;el('gap').value=prefs.defaultGap||'';el('price').value=prefs.defaultPrice||'';sync();}
   if(!localStorage.getItem('db-tools-welcome-studio-v1')||prefs.launchWelcome)showWelcome();
 });
 })();

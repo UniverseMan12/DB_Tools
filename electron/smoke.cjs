@@ -65,8 +65,9 @@ module.exports = async function smoke(win) {
   await js('document.getElementById("command-button").click()');
   assert.equal(await js('document.getElementById("command-palette").open'),true);
   await js('document.getElementById("command-palette").close()');
-  await js('document.getElementById("clear").click();var f=document.querySelectorAll("#rows input");["Front","60","72","1"].forEach((v,i)=>f[i].value=v);document.getElementById("measure").value="component";document.getElementById("allowance").value="2.5";sync();save();calculate()');await pause(250);
-  assert.match(await js('document.getElementById("allowance-preview").textContent'),/65 × 77/);
+  await js('document.getElementById("clear").click();var f=rowInputs(document.querySelector("#rows tr"));assert_default=f[4].value;["Front","60","72","1","2,5"].forEach((v,i)=>f[i].value=v);save();calculate()');await pause(250);
+  assert.equal(await js('assert_default'),'3');
+  assert.match(await js('document.getElementById("rows-summary").textContent'),/1 Position · 1 Teil/);
   assert.equal(await js('current.placed[0].w*current.placed[0].h'),6500*7700);
   await js('document.getElementById("plan-fullscreen").click()');await pause(600);
   assert.equal(await js('document.getElementById("plan-view").open'),true);
@@ -84,12 +85,22 @@ module.exports = async function smoke(win) {
   assert.equal(await js('document.getElementById("zoom").value'),'150');
   await js('document.getElementById("plan-view").close()');await pause(200);
   assert.equal(await js('document.getElementById("plan").parentElement.className'),'plan-section');
-  await js('document.getElementById("measure").value="finished";sync();calculate()');await pause(200);
+  await js('rowInputs(document.querySelector("#rows tr"))[4].value="0";calculate()');await pause(200);
   assert.equal(await js('current.placed[0].w*current.placed[0].h'),6000*7200);
-  await js('document.getElementById("measure").value="component";document.getElementById("allowance").value="-1";calculate()');await pause(200);
+  await js('rowInputs(document.querySelector("#rows tr"))[4].value="-1";calculate()');await pause(200);
   assert.match(await js('document.getElementById("error").textContent'),/Zugabe/);
+  // Per-row allowance: different rows, bulk apply with undo
+  await js('document.getElementById("clear").click();var r=document.querySelector("#rows tr");["A","50","50","1","1"].forEach((v,i)=>rowInputs(r)[i].value=v);addRow(["B","50","50","1","0"]);calculate()');await pause(300);
+  assert.deepEqual(await js('current.placed.slice().sort((a,b)=>a.id-b.id).map(p=>p.w)'),[5200,5000]);
+  await js('document.getElementById("bulk-allowance").value="2";document.getElementById("apply-allowance").click()');
+  assert.deepEqual(await js('rowsData().map(r=>r[4])'),['2','2']);
+  await js('document.getElementById("toast-action").click()');
+  assert.deepEqual(await js('rowsData().map(r=>r[4])'),['1','0']);
+  // Old saved data (global allowance) is migrated without changing results
+  assert.deepEqual(await js('migrateRow(["X","10","10","1"],{measure:"component",allowance:"2"})'),['X','10','10','1','2']);
+  assert.deepEqual(await js('migrateRow(["X","10","10","1"],{measure:"finished",allowance:"2"})'),['X','10','10','1','0']);
   // 1.3: comma decimals, paste from Excel, undo, cut gap, costs
-  await js('document.getElementById("measure").value="finished";sync();document.getElementById("clear").click();var f=document.querySelectorAll("#rows input");["Front","60,5","72","2"].forEach((v,i)=>f[i].value=v);save();calculate()');await pause(250);
+  await js('document.getElementById("clear").click();var f=rowInputs(document.querySelector("#rows tr"));["Front","60,5","72","2","0"].forEach((v,i)=>f[i].value=v);save();calculate()');await pause(250);
   assert.equal(await js('document.getElementById("error").textContent'),'');
   assert.equal(await js('current.placed[0].w'),6050);
   await js('var dt=new DataTransfer();dt.setData("text/plain","Seite\\t58\\t210\\t2\\nBlende\\t90,5\\t18\\t3\\n");var ev=new ClipboardEvent("paste",{clipboardData:dt,bubbles:true,cancelable:true});document.querySelector("#rows tr:last-child input").dispatchEvent(ev)');
@@ -133,5 +144,5 @@ module.exports = async function smoke(win) {
   await js('finishPrint()');
   assert.ok(pdf.length>1000);
   fs.writeFileSync(path.join(folder,'zuschnittplan-test.pdf'),pdf);
-  return {ok:true,checks:['Animierter Einstieg','Sandbox','10 Beispielteile','Speicherung nach Neuladen','Hell- und Dunkelmodus','Schwarz-Weiss' , 'Zugabe mit Dezimalwerten', 'Plan-Vollbild', 'Touchpad-Pinch', 'Cmd-Mausrad', 'Normales Scrollen ohne Zoom','Kompakte Ansicht','Reduzierte Bewegung','GitHub-Update-Einstellungen','Projekt-Export und Import','Schnellaktionen','Ungültige Eingaben','CSV','SVG','PDF','Komma-Eingabe','Einfügen aus Excel','Rückgängig','Schnittfuge und Kosten','Fehlerhervorhebung','Abhaken','Meine Projekte'],screenshots:folder};
+  return {ok:true,checks:['Animierter Einstieg','Sandbox','10 Beispielteile','Speicherung nach Neuladen','Hell- und Dunkelmodus','Schwarz-Weiss' , 'Zugabe mit Dezimalwerten', 'Plan-Vollbild', 'Touchpad-Pinch', 'Cmd-Mausrad', 'Normales Scrollen ohne Zoom','Kompakte Ansicht','Reduzierte Bewegung','GitHub-Update-Einstellungen','Projekt-Export und Import','Schnellaktionen','Ungültige Eingaben','CSV','SVG','PDF','Komma-Eingabe','Einfügen aus Excel','Rückgängig','Schnittfuge und Kosten','Fehlerhervorhebung','Abhaken','Meine Projekte','Zugabe pro Position','Zugabe für alle','Übernahme alter Daten'],screenshots:folder};
 };

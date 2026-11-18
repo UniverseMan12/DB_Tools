@@ -90,3 +90,12 @@ test('Projektdateien: Komma-Dezimalen und neue optionale Felder; alte Dateien bl
   assert.throws(()=>Preferences.project({...base,planner:{...base.planner,gap:'99'}}),/Schnittfuge/);
   assert.equal(Preferences.clean({defaultGap:2.5,defaultPrice:12}).defaultGap,2.5);
 });
+test('Zugabe pro Position: alte Projekte werden ohne Ergebnisänderung übernommen', () => {
+  const base={format:'db-tools-project',version:1,planner:{rows:[['Front','60','72','2']],rollW:'122',rollH:'50',allowance:'2.5',film:'uni',measure:'component'}};
+  assert.deepEqual(Preferences.project(base).planner.rows[0],['Front','60','72','2','2.5']);
+  assert.equal(Preferences.project({...base,planner:{...base.planner,measure:'finished'}}).planner.rows[0][4],'0');
+  const now={format:'db-tools-project',version:1,planner:{rows:[['Front','60','72','2','3'],['Seite','58','210','1','0,5']],rollW:'122',rollH:'50',film:'uni'}};
+  assert.deepEqual(Preferences.project(now).planner.rows.map(r=>r[4]),['3','0,5']);
+  assert.throws(()=>Preferences.project({...now,planner:{...now.planner,rows:[['A','1','1','1','-2']]}}),/Zugabe/);
+  assert.equal(Preferences.clean({}).rowAllowance,3);
+});

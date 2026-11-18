@@ -1,6 +1,10 @@
-# DB Tools · 1.3.0 Beta 1
+# DB Tools · 1.3.0
 
-**Neu in 1.3.0 Beta 1**
+**Neu in 1.3.0** (erste stabile Version, ohne Beta-Kennzeichnung)
+
+- **Zugabe pro Position:** Eigene Zugabe-Spalte pro Zeile, neue Positionen automatisch 3 cm pro Seite, „Zugabe für alle“ mit Rückgängig. Ältere Planungen werden ohne Ergebnisänderung übernommen.
+- Design: breitere Eingabespalte, alle Kennzahlen sichtbar, ruhigere Reststück-Farben, ausgerichtete Felder.
+- Fehlerbehebung: „Neu in DB Tools“ erscheint jetzt auch beim Update von 1.2.
 
 - **Weniger Folienverbrauch:** Die Berechnung vergleicht jetzt hunderte Anordnungen (5 Platzierungsregeln × 7 Sortierungen, beide Drehrichtungen und eine reproduzierbare Verbesserungsphase) statt 15. In Tests nie schlechter, im Schnitt rund 1,7 % kürzer.
 - **Meine Projekte:** Planungen mit Namen direkt in der App speichern, suchen, duplizieren, öffnen und löschen (mit Rückgängig). JSON-Dateien bleiben für Sicherungen verfügbar.
@@ -14,11 +18,10 @@
 - Nach einem Update zeigt DB Tools einmalig „Neu in DB Tools“.
 - Bis zu 500 Zuschnitte pro Berechnung (vorher 200).
 
-Bestehende Eingaben, Einstellungen und Projektdateien bleiben kompatibel. Interne Buildnummer: `1.3.1` (höher als `1.2.3`, Sparkle erkennt das Update).
+Bestehende Eingaben, Einstellungen und Projektdateien bleiben kompatibel. Interne Buildnummer: `1.3.999` (höher als `1.3.1` und `1.2.3`, Sparkle erkennt das Update).
 
 Einfacher Zuschnittplaner für macOS mit Schwarz-Weiss-Oberfläche, Vollbildansicht und frei einstellbarer Zugabe pro Seite. Hell-, Dunkel- und Systemmodus bleiben verfügbar. Kein Feedback-Hub.
 
-Die Beta wird bewusst als GitHub-Latest-Release im normalen signierten Sparkle-Update-Kanal verteilt. Die App ist weiterhin als Beta gekennzeichnet.
 
 Siehe [Anleitung](ANLEITUNG.md).
 

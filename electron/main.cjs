@@ -13,7 +13,10 @@ app.setName('DB Tools');
 app.setPath('userData', path.join(app.getPath('appData'), updateTest ? 'DB Tools Update-Test' : 'DB Tools'));
 const smoke = process.argv.includes('--smoke-test');
 if (smoke) app.setPath('userData', path.join(app.getPath('temp'), 'db-tools-smoke-' + process.pid));
-if (!smoke && !app.requestSingleInstanceLock()) app.quit();
+// `npm run preview`: try a build without touching the real profile or the installed app.
+const preview = process.argv.includes('--preview');
+if (preview) app.setPath('userData', path.join(app.getPath('appData'), 'DB Tools Vorschau'));
+if (!smoke && !preview && !app.requestSingleInstanceLock()) app.quit();
 let win, settings, updates;
 const entry = path.join(__dirname, '../app/index.html');
 const entryURL = pathToFileURL(entry).href;

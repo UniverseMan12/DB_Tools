@@ -133,3 +133,35 @@ input.invalid,select.invalid{border-color:#c0392b!important;box-shadow:0 0 0 3px
   .result-details.printable section{border:0!important;padding:0!important;box-shadow:none!important}
   .result-details.printable .hint{font-size:9px!important}
 }
+
+/* ---------- 1.3.0: Zugabe pro Position ---------- */
+.entry td.allow-cell input{background:var(--accent-soft)}
+.entry th:nth-child(4){white-space:nowrap}
+.bulk-allowance{display:flex;align-items:center;gap:8px;margin:10px 0 4px;font-size:11px;color:var(--muted)}
+.bulk-allowance label{margin:0;font-size:11px;font-weight:500;flex:1}
+.bulk-allowance input{width:64px;margin:0;padding:7px 8px;text-align:right}
+.bulk-allowance .ghost{padding:7px 10px;font-size:11px}
+.cut-table .muted{color:var(--subtle);font-size:.9em}
+.cut-table b{font-weight:600;color:var(--ink)}
+/* ---------- 1.3.0: layout polish ---------- */
+@media(min-width:1300px){.workspace{grid-template-columns:470px minmax(0,1fr)}}
+.entry{table-layout:fixed;width:100%;min-width:400px}
+.entry th,.entry td{overflow:hidden}
+.entry th:nth-child(2),.entry th:nth-child(3){width:15%}
+.entry th:nth-child(4){width:13%}
+.entry th:nth-child(5){width:12%}
+.entry th:nth-child(6){width:50px}
+.entry td:first-child,.entry td:nth-child(2),.entry td:nth-child(3),.entry td:nth-child(4),.entry td:nth-child(5){width:auto}
+.entry input{padding:9px 7px;text-overflow:ellipsis}
+.entry td:nth-child(n+2) input{text-align:right}
+.rest-key{display:inline-flex;align-items:center;gap:6px;color:#b8374b}
+.rest-key i{width:10px;height:10px;border-radius:2px;background:#f6dfe2;border:1px solid #b8374b}
+.stats-more{display:flex;flex-wrap:wrap;gap:6px 20px;margin:-6px 2px 18px;font-size:11px;color:var(--muted)}
+.stats-more span{display:inline-flex;gap:6px;align-items:baseline}
+.stats-more small{font-size:11px;color:var(--subtle)}
+.stats-more b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+@media print{.stats-more{margin:0 0 8px!important;font-size:9px!important}.stats-more small{font-size:9px!important}}
+.fields{align-items:end}
+.legend .rest-key{color:#b8374b}
+:root[data-theme=dark] .legend .rest-key{color:#e2788a}
+@media(max-width:1230px){.stats{grid-template-columns:repeat(3,1fr)!important}.stats .stat:nth-child(3){display:block!important}}

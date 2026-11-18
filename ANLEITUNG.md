@@ -1,26 +1,23 @@
-# DB Tools 1.2.0 Beta 3
+# DB Tools 1.3.0
 
-Beta 3 korrigiert die Update-Erkennung: Sichtbare Version und numerische Buildnummer sind getrennt. Beta 3 verwendet intern `1.2.3`, Beta 4 `1.2.4`, die stabile Version 1.2.0 verwendet `1.2.999`. Die Buildnummer wird beim Packen automatisch erzeugt.
+Erste stabile Version von DB Tools Studio. Intern verwendet sie die Buildnummer `1.3.999`, damit Sparkle sie nach allen 1.2- und 1.3-Betas einordnet.
 
-Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
+## Zugabe pro Position
 
-## Neuerungen
+- Jede Position in der Tabelle hat eine eigene Spalte **Zugabe** (cm pro Seite). Neue Positionen starten automatisch mit **3 cm**; der Wert kann pro Zeile beliebig verkleinert, vergrössert oder auf 0 gesetzt werden.
+- Beispiel: 60 × 72 cm mit 3 cm Zugabe ergibt einen Zuschnitt von 66 × 78 cm.
+- **Zugabe für alle Positionen → Übernehmen** setzt einen Wert für alle Zeilen auf einmal (mit Rückgängig).
+- Der Startwert für neue Positionen lässt sich unter Einstellungen → Planung ändern.
+- Ältere Planungen und Projektdateien behalten ihr Ergebnis: Mit „Ohne Zugabe“ erhalten alle Zeilen 0 cm, mit „Zugabe pro Seite“ den damals eingestellten Wert.
+- Die Schnittliste zeigt Zuschnittmass, Fertigmass und Zugabe.
 
-- Schwarz-weisse App-Oberfläche mit Hell-, Dunkel- und Systemmodus; der Zuschnittplan bleibt farbig. Logo und Einführung sind neutral.
-- Ein Arbeitsbereich ohne seitliche Werkzeugleiste. Reststücke und Teilelisten lassen sich bei Bedarf aufklappen.
-- Im berechneten Zuschnittplan auf **Vollbild** klicken. **Einpassen** und der Zoomregler vergrössern die Ansicht; **Esc** führt zurück.
-- Unter **Zuschnitte → Zugabe berechnen** die Option **Zugabe pro Seite hinzufügen** wählen. Den gewünschten Wert in cm selbst eingeben. Beispiel: 60 × 72 cm mit 2,5 cm Zugabe pro Seite ergibt 65 × 77 cm. Bei „Ohne Zugabe“ werden die eingegebenen Masse unverändert verwendet.
-- Die App ist als Beta gekennzeichnet. Kein Feedback-Hub enthalten.
+## Installation
 
-## Installation der Beta
-
-Die Datei `DB-Tools-1.2.0-beta.3-universal.dmg` öffnen und DB Tools in Programme ziehen. Die laufende App vorher beenden und die alte Version ersetzen. Gespeicherte Eingaben und Einstellungen bleiben im bisherigen Benutzerprofil erhalten. Vorher kann über **Projekt sichern** eine zusätzliche Sicherung erstellt werden.
-
-Die Beta wird auf Wunsch über den normalen signierten Update-Kanal verteilt. In DB Tools unter Einstellungen → Updates → Nach Updates suchen aktualisieren. Bei aktivierten automatischen Updates prüft die App im Hintergrund. Die App bleibt als Beta gekennzeichnet; das GitHub-Release wird als Latest veröffentlicht, damit der bestehende Feed es findet. Nutzer von Version 1.0.0 ohne Sparkle müssen einmal über die DMG aktualisieren.
+Die Datei `DB-Tools-1.3.0-universal.dmg` öffnen und DB Tools in Programme ziehen. Bestehende Installationen aktualisieren sich automatisch über Sparkle oder über DB Tools → Nach Updates suchen. Gespeicherte Eingaben, Projekte und Einstellungen bleiben erhalten.
 
 ## Veröffentlichen
 
-Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.2.0-beta.3. Der Workflow akzeptiert Beta-Versionen und veröffentlicht sie bewusst als **Latest** im normalen Update-Kanal (nicht als GitHub-Pre-release). Für die stabile Ausgabe 1.2.0 verwenden. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
+Versionsnummer in package.json und package-lock.json gemeinsam erhöhen, z. B. 1.3.1. Beta-Versionen wie 1.4.0-beta.1 sind weiterhin möglich und werden ebenfalls als **Latest** im normalen Update-Kanal veröffentlicht. Der vorhandene private Sparkle-Schlüssel und das GitHub-Secret bleiben unverändert.
 
 ---
 
