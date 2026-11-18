@@ -56,12 +56,30 @@ app.whenReady().then(async () => {
     'settings:get': () => ({ ...settings, state: updates.getState() }),
     'settings:save': (_, value) => { settings = writeSettings(settingsFile(), value); updates.setAutomatic(settings.automatic); return settings; },
     'window:plan-fullscreen': (_, value) => { if(typeof value!=='boolean')throw Error('Ungültiger Vollbildmodus.');const previous=win.isFullScreen();win.setFullScreen(value);return previous; },
+    'plan:pdf': async (_, name) => {
+      const base = path.basename(String(name || 'Zuschnittplan.pdf')).replace(/[^\p{L}\p{N} ._()-]+/gu, '-').slice(0, 100).replace(/(\.pdf)?$/i, '.pdf');
+      const { canceled, filePath } = await dialog.showSaveDialog(win, { title: 'Zuschnittplan als PDF sichern', defaultPath: path.join(app.getPath('documents'), base), filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+      if (canceled || !filePath) return { saved: false };
+      const data = await win.webContents.printToPDF({ printBackground: true, pageSize: 'A4', margins: { marginType: 'default' } });
+      fs.writeFileSync(filePath, data);
+      return { saved: true };
+    },
     'updates:check': check,
     'updates:install': () => updates.showInstall()
   })) ipcMain.handle(channel, (event, ...args) => { trusted(event); return handler(event, ...args); });
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: 'DB Tools', submenu: [{ role: 'about', label: 'Über DB Tools' }, { label: 'Einstellungen …', accelerator: 'CmdOrCtrl+,', click: () => menuAction('settings') }, { label: 'Nach Updates suchen …', click: () => { menuAction('updates'); check(); } }, { type: 'separator' }, { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' }, { type: 'separator' }, { role: 'quit', label: 'DB Tools beenden' }] },
-    { label: 'Ablage', submenu: [{ label: 'Projekt sichern …', accelerator: 'CmdOrCtrl+S', click: () => menuAction('export') }, { label: 'Projekt öffnen …', accelerator: 'CmdOrCtrl+O', click: () => menuAction('import') }, { type: 'separator' }, { label: 'Plan drucken / PDF …', accelerator: 'CmdOrCtrl+P', click: () => win?.webContents.print({ printBackground: true }) }] },
+    { label: 'Ablage', submenu: [
+      { label: 'Neue Planung', accelerator: 'CmdOrCtrl+N', click: () => menuAction('new') },
+      { label: 'Meine Projekte …', accelerator: 'CmdOrCtrl+Shift+O', click: () => menuAction('library') },
+      { label: 'In Meine Projekte speichern', accelerator: 'CmdOrCtrl+S', click: () => menuAction('save') },
+      { type: 'separator' },
+      { label: 'Projektdatei öffnen …', accelerator: 'CmdOrCtrl+O', click: () => menuAction('import') },
+      { label: 'Als Projektdatei sichern …', accelerator: 'CmdOrCtrl+Shift+S', click: () => menuAction('export') },
+      { type: 'separator' },
+      { label: 'Plan als PDF sichern …', accelerator: 'CmdOrCtrl+Shift+P', click: () => menuAction('pdf') },
+      { label: 'Plan drucken …', accelerator: 'CmdOrCtrl+P', click: () => menuAction('print') }
+    ] },
     { label: 'Bearbeiten', submenu: [{ role: 'undo' }, { role: 'redo' }, { type: 'separator' }, { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' }] },
     { label: 'Darstellung', submenu: [{ role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { type: 'separator' }, { role: 'togglefullscreen' }] },
     { label: 'Fenster', submenu: [{ role: 'minimize' }, { role: 'zoom' }, { role: 'front' }] },

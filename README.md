@@ -1,8 +1,20 @@
-# DB Tools · 1.2.0 Beta 3
+# DB Tools · 1.3.0 Beta 1
 
-Beta 3 korrigiert die Update-Erkennung: Sichtbare Version und numerische Buildnummer sind getrennt. Beta 3 verwendet intern `1.2.3`, Beta 4 `1.2.4`, die stabile Version 1.2.0 verwendet `1.2.999`. Die Buildnummer wird beim Packen automatisch erzeugt.
+**Neu in 1.3.0 Beta 1**
 
-Neu: Im Zuschnittplan mit zwei Fingern auf dem Touchpad zusammenziehen/auseinanderziehen oder **⌘ + Mausrad** (auch Ctrl + Mausrad) zoomen. Das funktioniert auch im Vollbild. Ohne Zusatztaste bleibt Scrollen zum Verschieben erhalten. Zoombereich: 25–250 %.
+- **Weniger Folienverbrauch:** Die Berechnung vergleicht jetzt hunderte Anordnungen (5 Platzierungsregeln × 7 Sortierungen, beide Drehrichtungen und eine reproduzierbare Verbesserungsphase) statt 15. In Tests nie schlechter, im Schnitt rund 1,7 % kürzer.
+- **Meine Projekte:** Planungen mit Namen direkt in der App speichern, suchen, duplizieren, öffnen und löschen (mit Rückgängig). JSON-Dateien bleiben für Sicherungen verfügbar.
+- **Schnittliste zum Abhaken:** Teile im Plan oder in der Liste anklicken, sobald sie geschnitten sind. Nummern im Plan zeigen die Reihenfolge vom Rollenanfang; der Fortschritt bleibt gespeichert.
+- **Einfachere Eingabe:** Komma-Dezimalen (60,5), ganze Tabellen aus Excel/Numbers einfügen, Position duplizieren, Zusammenfassung der erfassten Teile, fehlerhafte Felder werden rot markiert.
+- **Rückgängig** nach Löschen einer Position, „Leeren“, „Beispiel“ und „Neue Planung“.
+- **Schnittfuge (mm)** als Abstand zwischen Teilen und **Materialkosten** über einen Preis pro Meter (CHF). Streifen unter 1 cm zählen als Verschnitt statt als Reststück.
+- **Gleiche Farbe für gleiche Teile** mit Legende.
+- **PDF sichern** (⇧⌘P) als Werkstattblatt: Projektname, Datum, Kennzahlen, Plan auf Seite 1 und Schnittliste mit Ankreuzfeldern auf Seite 2.
+- Native Menüs: ⌘N Neue Planung, ⇧⌘O Meine Projekte, ⌘S Speichern, ⌘O/⇧⌘S Projektdatei, ⌘P Drucken.
+- Nach einem Update zeigt DB Tools einmalig „Neu in DB Tools“.
+- Bis zu 500 Zuschnitte pro Berechnung (vorher 200).
+
+Bestehende Eingaben, Einstellungen und Projektdateien bleiben kompatibel. Interne Buildnummer: `1.3.1` (höher als `1.2.3`, Sparkle erkennt das Update).
 
 Einfacher Zuschnittplaner für macOS mit Schwarz-Weiss-Oberfläche, Vollbildansicht und frei einstellbarer Zugabe pro Seite. Hell-, Dunkel- und Systemmodus bleiben verfügbar. Kein Feedback-Hub.
 

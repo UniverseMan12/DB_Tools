@@ -24,7 +24,7 @@ test('Projektdateien werden validiert; Schadcode und ungültige Stückzahlen wer
   const value={format:'db-tools-project',version:1,planner:{rows:[['Front','60','72','4']],rollW:'122',rollH:'50',allowance:'2',film:'uni',measure:'finished'},preferences:{theme:'dark',density:'compact',accent:'teal'}};
   const data=Preferences.project(value);assert.equal(data.planner.rows[0][0],'Front');assert.equal(data.preferences.theme,'dark');
   assert.throws(()=>Preferences.project({...value,version:2}),/unterstützt/);
-  assert.throws(()=>Preferences.project({...value,planner:{...value.planner,rows:[['A','60','72','201']]}}),/Stückzahl/);
+  assert.throws(()=>Preferences.project({...value,planner:{...value.planner,rows:[['A','60','72','501']]}}),/Stückzahl/);
   assert.throws(()=>Preferences.project({...value,planner:{...value.planner,rollW:'<script>'}}),/Ungültige/);
   assert.equal(Preferences.clean({theme:'invalid',motion:false,defaultRollH:-1}).theme,'system');
   assert.equal(Preferences.clean({motion:false}).motion,false);
@@ -35,7 +35,7 @@ test('Beispiel: keine Überschneidungen, vollständige Flächenbilanz', () => {
   const result = Packing.optimize(parts,12200,500000,true);
   Packing.validate(result,parts,12200,500000,true);
   assert.equal(result.placed.length,10);
-  assert.equal(result.area + result.rest.reduce((s,r)=>s+r.w*r.h,0),12200*result.length);
+  assert.equal(result.area + [...result.rest,...result.scrap].reduce((s,r)=>s+r.w*r.h,0),12200*result.length);
   for(let i=0;i<result.rest.length;i++) {for(const p of result.placed) assert.equal(Packing.overlap(result.rest[i],p),false); for(let j=i+1;j<result.rest.length;j++) assert.equal(Packing.overlap(result.rest[i],result.rest[j]),false);}
 });
 test('Strukturfolie wird nicht gedreht; unpassende Masse werden abgewiesen', () => {
@@ -56,4 +56,37 @@ test('Update-Einstellungen bleiben über Neustarts erhalten; beschädigte Datei 
     fs.writeFileSync(file,'not json');
     assert.deepEqual(readSettings(file,defaults),defaults);
   } finally {fs.rmSync(dir,{recursive:true,force:true});}
+});
+
+test('Schnittfuge: Teile halten Abstand, Flächenbilanz inklusive Fuge stimmt', () => {
+  const parts=[];for(let i=0;i<12;i++)parts.push({id:i,name:'T',w:3000+i*100,h:4000});
+  const gap=30, r=Packing.optimize(parts,12200,500000,true,{gap});
+  Packing.validate(r,parts,12200,500000,true,gap);
+  const rest=[...r.rest,...r.scrap].reduce((s,p)=>s+p.w*p.h,0);
+  assert.equal(r.area+rest+r.kerfArea,12200*r.length);
+  assert.ok(r.kerfArea>0);
+  for(const a of r.placed)for(const b of r.placed)if(a!==b)assert.equal(Packing.overlap({...a,w:a.w+gap,h:a.h+gap},{...b,w:b.w+gap,h:b.h+gap}),false);
+});
+test('Neue Optimierung ist reproduzierbar und nie schlechter als die einfache Anordnung', () => {
+  let seed=7;const rand=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+  for(let t=0;t<15;t++){
+    const parts=[];const n=5+Math.floor(rand()*40);
+    for(let i=0;i<n;i++)parts.push({id:i,name:'P',w:(10+Math.floor(rand()*100))*100,h:(10+Math.floor(rand()*150))*100});
+    const a=Packing.optimize(parts,12200,10000000,true),b=Packing.optimize(parts,12200,10000000,true);
+    assert.equal(a.length,b.length);
+    const quick=Packing.optimize(parts,12200,10000000,true,{iterations:0});
+    assert.ok(a.length<=quick.length);
+  }
+});
+test('Reststücke werden zu grösseren Rechtecken zusammengefasst', () => {
+  const merged=Packing.mergeRest([{x:0,y:0,w:10,h:5},{x:0,y:5,w:10,h:5},{x:10,y:0,w:5,h:10}]);
+  assert.deepEqual(merged,[{x:0,y:0,w:15,h:10}]);
+});
+test('Projektdateien: Komma-Dezimalen und neue optionale Felder; alte Dateien bleiben gültig', () => {
+  const base={format:'db-tools-project',version:1,planner:{rows:[['Front','60,5','72','2']],rollW:'122',rollH:'50',allowance:'2',film:'uni',measure:'finished'}};
+  const old=Preferences.project(base);assert.equal(old.planner.gap,'');assert.equal(old.planner.projectName,'');
+  const next=Preferences.project({...base,planner:{...base.planner,gap:'3',price:'12,5',projectName:'Küche'}});
+  assert.equal(next.planner.price,'12.5');assert.equal(next.planner.projectName,'Küche');
+  assert.throws(()=>Preferences.project({...base,planner:{...base.planner,gap:'99'}}),/Schnittfuge/);
+  assert.equal(Preferences.clean({defaultGap:2.5,defaultPrice:12}).defaultGap,2.5);
 });
