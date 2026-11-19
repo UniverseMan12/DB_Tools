@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(desktop){
     desktop.onUpdate(updateStatus);
     desktop.onMenu(action=>{if(action==='welcome')showWelcome();else if(action==='updates')showSettings('updates');else if(action==='settings')showSettings();else if(action==='export')exportProject();else if(action==='import')chooseProject();else if(actions[action])actions[action]();});
-    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent=info.version.replace('-beta.',' Beta '));if(info.packaged)setTimeout(()=>whatsNew(info.version),600);el('signing-note').textContent='Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
+    desktop.info().then(info=>{all('.app-version').forEach(node=>node.textContent=info.version.replace('-beta.',' Beta '));if(info.packaged)setTimeout(()=>whatsNew(info.version),600);el('signing-note').textContent=info.updater==='builtin'?'Integrierter Updater für macOS 12 und 13. Jedes Update wird vor der Installation mit Ihrem Ed25519-Sicherheitsschlüssel geprüft und beim Beenden installiert.':'Kostenlose Updates mit Sparkle. Appcast und Update-Dateien werden vor der Installation mit Ihrem Sicherheitsschlüssel geprüft. Kein Apple-Abonnement nötig.';});
   } else {el('check-updates').disabled=true;el('signing-note').textContent='Updates sind in der macOS-App verfügbar.';}
   const slides=[
     ['Gross denken.<br><em>Präzise</em><br>zuschneiden.','Aus Material wird Möglichkeit. Ihr Studio für durchdachte Zuschnitte – vom ersten Mass bis zum letzten Zentimeter.','Jede Rolle hat Potenzial.','Sie geben die Masse vor. DB Tools bringt Ordnung hinein.'],

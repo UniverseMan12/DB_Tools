@@ -1,3 +1,4 @@
+const crypto = require('node:crypto');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -98,4 +99,29 @@ test('Zugabe pro Position: alte Projekte werden ohne Ergebnisänderung übernomm
   assert.deepEqual(Preferences.project(now).planner.rows.map(r=>r[4]),['3','0,5']);
   assert.throws(()=>Preferences.project({...now,planner:{...now.planner,rows:[['A','1','1','1','-2']]}}),/Zugabe/);
   assert.equal(Preferences.clean({}).rowAllowance,3);
+});
+test('macOS-12-Updater: Appcast, Ed25519-Signatur, Adressen und Versionen', () => {
+  const F = require('../electron/fallback-updater.cjs');
+  const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
+  const raw = Buffer.from(publicKey.export({ format: 'jwk' }).x, 'base64url').toString('base64');
+  const data = Buffer.from('update archive bytes');
+  const sig = crypto.sign(null, data, privateKey).toString('base64');
+  assert.equal(F.verifySignature(data, sig, raw), true);
+  assert.equal(F.verifySignature(Buffer.from('manipuliert'), sig, raw), false);
+  const other = crypto.generateKeyPairSync('ed25519').publicKey;
+  assert.equal(F.verifySignature(data, sig, Buffer.from(other.export({ format: 'jwk' }).x, 'base64url').toString('base64')), false);
+  const xml = `<rss><channel>
+    <item><title>1.3.0</title><sparkle:version>1.3.999</sparkle:version><sparkle:shortVersionString>1.3.0</sparkle:shortVersionString><sparkle:minimumSystemVersion>12.0</sparkle:minimumSystemVersion><enclosure url="https://github.com/UniverseMan12/DB_Tools/releases/download/v1.3.0/DB-Tools-1.3.0-universal.zip" length="20" type="application/octet-stream" sparkle:edSignature="${sig}"/></item>
+    <item><sparkle:version>1.4.999</sparkle:version><sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion><enclosure url="https://github.com/x.zip" length="1" sparkle:edSignature="${sig}"/></item>
+  </channel></rss>`;
+  const item = F.parseAppcast(xml, '12.7.4');
+  assert.equal(item.version, '1.3.999'); assert.equal(item.displayVersion, '1.3.0'); assert.equal(item.length, 20);
+  assert.equal(F.parseAppcast(xml, '14.1').version, '1.4.999');
+  assert.equal(F.compareVersions('1.3.999', '1.3.1'), 1); assert.equal(F.compareVersions('1.2.3', '1.3.1'), -1); assert.equal(F.compareVersions('1.3.0', '1.3'), 0);
+  const feed = 'https://github.com/UniverseMan12/DB_Tools/releases/latest/download/appcast.xml';
+  assert.equal(F.allowedUrl(item.url, feed), true);
+  assert.equal(F.allowedUrl('http://github.com/a.zip', feed), false);
+  assert.equal(F.allowedUrl('https://evil.example/a.zip', feed), false);
+  assert.equal(F.allowedUrl('http://127.0.0.1:8765/a.zip', 'http://127.0.0.1:8765/appcast.xml'), true);
+  assert.equal(F.plistString('<key>CFBundleVersion</key>\n<string>1.3.999</string>', 'CFBundleVersion'), '1.3.999');
 });

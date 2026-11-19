@@ -1,10 +1,14 @@
 'use strict';
-const { app, BrowserWindow, Menu, ipcMain, dialog, session } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, session, net } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const { pathToFileURL } = require('node:url');
-const { updater } = require('electron-sparkle');
 const { createUpdates } = require('./updates.cjs');
+const { createFallbackUpdater } = require('./fallback-updater.cjs');
+// electron-sparkle's Swift addon needs macOS 14 (Darwin 23). macOS 12 and 13
+// use the built-in updater with the same signed GitHub feed.
+const darwinMajor = Number(require('node:os').release().split('.')[0]);
+const useFallbackUpdater = process.env.DB_TOOLS_FALLBACK_UPDATER === '1' || darwinMajor < 23;
 const updateTest = require('../package.json').dbToolsUpdateTest === true;
 const { readSettings, writeSettings } = require('./settings.cjs');
 const defaults = require('./defaults.json');
@@ -44,6 +48,8 @@ function createWindow() {
 app.whenReady().then(async () => {
   fs.mkdirSync(app.getPath('userData'), { recursive: true });
   settings = readSettings(settingsFile(), defaults);
+  const updater = useFallbackUpdater ? createFallbackUpdater({ app, fetch: (url, options) => net.fetch(url, options), audit }) : require('electron-sparkle').updater;
+  audit({ event: 'updater', kind: useFallbackUpdater ? 'fallback' : 'sparkle', darwin: darwinMajor });
   updates = createUpdates({ updater, packaged: app.isPackaged, automatic: settings.automatic, audit, notify: state => { if (win && !win.isDestroyed()) win.webContents.send('updates:state', state); } });
   audit({ event: 'launch' });
   session.defaultSession.setPermissionRequestHandler((_, __, callback) => callback(false));
@@ -55,7 +61,7 @@ app.whenReady().then(async () => {
     item.setSaveDialogOptions({ title: 'Zuschnittplan speichern', defaultPath: path.join(app.getPath('documents'), item.getFilename()) });
   });
   for (const [channel, handler] of Object.entries({
-    'app:info': () => ({ version: app.getVersion(), updater: 'sparkle', packaged: app.isPackaged }),
+    'app:info': () => ({ version: app.getVersion(), updater: useFallbackUpdater ? 'builtin' : 'sparkle', packaged: app.isPackaged }),
     'settings:get': () => ({ ...settings, state: updates.getState() }),
     'settings:save': (_, value) => { settings = writeSettings(settingsFile(), value); updates.setAutomatic(settings.automatic); return settings; },
     'window:plan-fullscreen': (_, value) => { if(typeof value!=='boolean')throw Error('Ungültiger Vollbildmodus.');const previous=win.isFullScreen();win.setFullScreen(value);return previous; },

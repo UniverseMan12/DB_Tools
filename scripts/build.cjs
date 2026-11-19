@@ -4,6 +4,7 @@ const { Arch } = require('builder-util');
 const { electronSparkle } = require('electron-sparkle/electron-builder');
 const path = require('node:path');
 const asar = require('@electron/asar');
+const { checkMinimumMacOS } = require('./macos-min.cjs');
 const config = require('../electron/update-config.json');
 const { macBuildVersion } = require('./version.cjs');
 const staging = process.argv.includes('--staging');
@@ -22,7 +23,7 @@ const name = staging ? 'DB Tools Update-Test' : 'DB Tools';
       identity: '-', hardenedRuntime: false, notarize: false,
       extendInfo: {
         SUFeedURL: staging ? 'http://127.0.0.1:8765/appcast.xml' : config.feedUrl,
-        SUPublicEDKey: config.publicEdKey,
+        SUPublicEDKey: staging && process.env.DB_TOOLS_QA_PUBLIC_KEY ? process.env.DB_TOOLS_QA_PUBLIC_KEY : config.publicEdKey,
         SUEnableAutomaticChecks: true, SUAutomaticallyUpdate: true, SUAllowsAutomaticUpdates: true,
         SUScheduledCheckInterval: 14400, SUShowReleaseNotes: false,
         SUVerifyUpdateBeforeExtraction: true, SURequireSignedFeed: true,
@@ -36,6 +37,7 @@ const name = staging ? 'DB Tools Update-Test' : 'DB Tools';
         if (!asar.extractFile(archive, file).length) throw Error('Unvollständiger App-Build: ' + file);
       }
       await electronSparkle(context);
+      checkMinimumMacOS(path.join(context.appOutDir, name + '.app'));
     }
   } });
 })().catch(e => { console.error(e); process.exitCode = 1; });

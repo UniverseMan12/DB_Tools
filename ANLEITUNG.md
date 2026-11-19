@@ -1,4 +1,10 @@
-# DB Tools 1.3.0
+# DB Tools 1.3.1
+
+**Systemvoraussetzung: macOS 12 Monterey oder neuer.** Version 1.3.1 läuft wieder auf macOS 12 und 13. Auf diesen Systemen sucht ein integrierter Updater nach neuen Versionen (gleiche Signaturprüfung wie Sparkle) und installiert sie beim Beenden. Wer auf macOS 12 eine ältere 1.2- oder 1.3.0-Version installiert hat, muss 1.3.1 einmalig über die DMG installieren, weil diese Versionen dort nicht starteten.
+
+Beim Anheben der Electron-Version darauf achten: Electron 44 und neuer verlangen macOS 13. Der Build prüft das automatisch und bricht sonst ab.
+
+## Version 1.3.0
 
 Erste stabile Version von DB Tools Studio. Intern verwendet sie die Buildnummer `1.3.999`, damit Sparkle sie nach allen 1.2- und 1.3-Betas einordnet.
 

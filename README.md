@@ -1,4 +1,12 @@
-# DB Tools · 1.3.0
+# DB Tools · 1.3.1
+
+**Neu in 1.3.1: macOS 12 Monterey wird wieder unterstützt.**
+
+- Electron 43.8.12 (Chromium-Basis, die macOS 12 noch unterstützt). Electron 44 und neuer verlangen macOS 13; die Versionen 1.2.0 bis 1.3.0 mit Electron 45 starteten auf macOS 12 daher nicht.
+- Auf macOS 12 und 13 übernimmt ein integrierter Updater (`electron/fallback-updater.cjs`): gleicher signierter GitHub-Appcast, Ed25519-Prüfung jedes Update-Archivs mit `SUPublicEDKey`, Prüfung von App-ID, Version und Codesignatur, Austausch des App-Bundles nach dem Beenden. Ab macOS 14 bleibt Sparkle zuständig (dessen Swift-Baustein verlangt macOS 14).
+- Der Build bricht ab, sobald eine Programmdatei mehr als macOS 12.0 verlangt (`scripts/macos-min.cjs`).
+- Wichtig: Wer auf macOS 12 eine der Versionen 1.2.0–1.3.0 installiert hat, konnte sie nie öffnen und muss 1.3.1 einmalig über die DMG installieren.
+
 
 **Neu in 1.3.0** (erste stabile Version, ohne Beta-Kennzeichnung)
 

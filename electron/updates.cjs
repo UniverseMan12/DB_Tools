@@ -4,7 +4,7 @@ function createUpdates({ updater, packaged, automatic, notify, audit = () => {} 
   let state = { kind: 'idle', message: 'Kostenlose Updates über GitHub · Signaturprüfung mit eigenem Sicherheitsschlüssel.' };
   function send(kind, message) { state = { kind, message }; notify(state); audit({ event: kind, message }); }
   updater.on('update-available', ({ update }) => send('downloading', 'Version ' + update.displayVersion + ' wird geladen und sicher geprüft …'));
-  updater.on('update-downloaded', ({ update }) => send('ready', 'Version ' + update.displayVersion + ' ist bereit. Sparkle installiert sie beim Beenden oder über „Update öffnen“.'));
+  updater.on('update-downloaded', ({ update }) => send('ready', 'Version ' + update.displayVersion + ' ist bereit. Sie wird beim Beenden von DB Tools installiert – oder sofort über „Update öffnen“.'));
   updater.on('update-not-available', () => send('current', 'DB Tools ist auf dem neuesten Stand.'));
   updater.on('before-install', () => send('installing', 'Das geprüfte Update wird installiert …'));
   updater.on('before-relaunch', () => audit({ event: 'relaunching' }));
@@ -37,7 +37,7 @@ function createUpdates({ updater, packaged, automatic, notify, audit = () => {} 
       catch (error) { audit({ event: 'check-error', message: error.message }); send('error', 'Die Update-Prüfung konnte nicht gestartet werden.'); }
       return state;
     },
-    showInstall() { if (started && state.kind === 'ready') updater.checkForUpdates(); return started && state.kind === 'ready'; }
+    showInstall() { if (started && state.kind === 'ready') { if (typeof updater.installAndRelaunch === 'function') updater.installAndRelaunch(); else updater.checkForUpdates(); } return started && state.kind === 'ready'; }
   };
 }
 module.exports = { createUpdates };
